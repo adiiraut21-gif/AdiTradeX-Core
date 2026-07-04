@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: aditradex-core
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: KITE_API_KEY
+        sync: false
+      - key: KITE_API_SECRET
+        sync: false
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: LOG_LEVEL
+        value: INFO
