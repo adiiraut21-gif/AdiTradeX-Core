@@ -5,6 +5,7 @@ from database.db import init_db
 from auth.routes import auth_bp
 from dashboard.routes import dashboard_bp
 from market.routes import market_bp
+from options.routes import options_bp
 
 logger = setup_logger()
 
@@ -17,17 +18,18 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(market_bp, url_prefix="/market")
+    app.register_blueprint(options_bp, url_prefix="/options")
 
     @app.route("/health")
     def health():
         return {
             "app": "AdiTradeX Core",
-            "version": "2.0-AdiStrike-v5-UI",
+            "version": "3.0-Option-Chain",
             "status": "ok",
-            "modules": ["auth", "dashboard", "market"]
+            "modules": ["auth", "dashboard", "market", "option_chain"]
         }
 
-    logger.info("AdiTradeX Core v2.0 AdiStrike v5 UI started")
+    logger.info("AdiTradeX Core v3.0 Option Chain Engine started")
     return app
 
 app = create_app()

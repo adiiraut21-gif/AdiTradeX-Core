@@ -1,46 +1,32 @@
-# AdiTradeX Milestone 2 - AdiStrike v5.0 Institutional UI
+# AdiTradeX Milestone 3 - Option Chain Engine
 
-This release upgrades AdiTradeX Core into an institutional terminal-style interface.
+This release adds the first read-only Option Chain Engine to the AdiStrike v5 institutional dashboard.
 
-## Includes
+## Adds
 
-- Zerodha authentication
-- Session storage
-- Live index market data
-- Market data API endpoints
-- AdiStrike AlphaX v5.0-style dashboard
-- Terminal-style sidebar
-- Dark institutional UI
-- System console
-- Read-only mode
+- NIFTY option chain
+- BANKNIFTY option chain
+- FINNIFTY option chain
+- MIDCPNIFTY option chain
+- Nearest expiry detection
+- ATM detection
+- CE/PE OI table
+- PCR calculation
+- Approximate Max Pain
+- Option chain dashboard page
+- JSON endpoints
 
-## Main URLs
+## URLs
 
-- `/` login page
-- `/dashboard` main institutional terminal
-- `/market/dashboard` live market dashboard
-- `/market/indices` JSON quotes
-- `/market/quote/nifty`
-- `/market/quote/banknifty`
-- `/market/snapshots`
-- `/status`
-- `/profile`
+- `/options/`
+- `/options/?underlying=nifty`
+- `/options/?underlying=banknifty`
+- `/options/chain/nifty`
+- `/options/chain/banknifty`
+- `/options/reload-instruments`
 
-## Deployment
+## Notes
 
-Upload extracted files and folders to GitHub and redeploy Render.
+This is still read-only. No orders are placed.
 
-Required Render environment variables:
-
-- `KITE_API_KEY`
-- `KITE_API_SECRET`
-- `FLASK_SECRET_KEY`
-- `LOG_LEVEL`
-
-Redirect URL:
-
-`https://aditradex-core.onrender.com/zerodha/callback`
-
-## Safety
-
-This version is read-only. It does not place, modify, or cancel orders.
+Max Pain is an approximation based on available strike OI in the displayed range.

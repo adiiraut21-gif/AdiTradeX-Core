@@ -315,3 +315,9 @@ h3 { margin-top: 0; }
   .topbar { align-items: flex-start; flex-direction: column; }
   .hero h2 { font-size: 32px; }
 }
+
+.small-price { font-size: 22px; }
+.atm-row {
+  background: rgba(245, 158, 11, 0.12);
+  outline: 1px solid rgba(245, 158, 11, 0.28);
+}

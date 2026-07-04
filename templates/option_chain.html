@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% set heading = "Option Chain Engine" %}
+{% block content %}
+
+<div class="glass-card">
+  <h2>Institutional Option Chain</h2>
+  <p>Read-only option chain built from Zerodha NFO instruments and live quotes.</p>
+
+  <div class="cta-row">
+    <a class="btn" href="/options/?underlying=nifty">NIFTY</a>
+    <a class="btn" href="/options/?underlying=banknifty">BANKNIFTY</a>
+    <a class="btn" href="/options/?underlying=finnifty">FINNIFTY</a>
+    <a class="btn" href="/options/?underlying=midcpnifty">MIDCPNIFTY</a>
+  </div>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+    <p>Login again if token expired.</p>
+  {% else %}
+    <section class="metric-grid">
+      <div class="market-card">
+        <div class="market-symbol">{{ data.underlying }} Spot</div>
+        <div class="market-price">{{ data.spot }}</div>
+        <div class="market-meta"><span>ATM</span><span>{{ data.atm }}</span></div>
+      </div>
+      <div class="market-card">
+        <div class="market-symbol">Expiry</div>
+        <div class="market-price small-price">{{ data.expiry }}</div>
+        <div class="market-meta"><span>Nearest</span><span>Weekly/Monthly</span></div>
+      </div>
+      <div class="market-card">
+        <div class="market-symbol">PCR</div>
+        <div class="market-price">{{ data.pcr }}</div>
+        <div class="market-meta"><span>Put OI</span><span>{{ data.total_put_oi }}</span></div>
+      </div>
+      <div class="market-card">
+        <div class="market-symbol">Max Pain</div>
+        <div class="market-price">{{ data.max_pain }}</div>
+        <div class="market-meta"><span>Call OI</span><span>{{ data.total_call_oi }}</span></div>
+      </div>
+    </section>
+
+    <table class="terminal-table">
+      <thead>
+        <tr>
+          <th>CE OI</th>
+          <th>CE Vol</th>
+          <th>CE LTP</th>
+          <th>Strike</th>
+          <th>PE LTP</th>
+          <th>PE Vol</th>
+          <th>PE OI</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in data.chain %}
+        <tr class="{% if r.is_atm %}atm-row{% endif %}">
+          <td>{{ r.ce_oi }}</td>
+          <td>{{ r.ce_volume }}</td>
+          <td>{{ r.ce_ltp }}</td>
+          <td><b>{{ r.strike }}</b>{% if r.is_atm %} ATM{% endif %}</td>
+          <td>{{ r.pe_ltp }}</td>
+          <td>{{ r.pe_volume }}</td>
+          <td>{{ r.pe_oi }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+
+{% endblock %}
