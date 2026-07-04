@@ -6,6 +6,7 @@ from auth.routes import auth_bp
 from dashboard.routes import dashboard_bp
 from market.routes import market_bp
 from options.routes import options_bp
+from analytics.routes import analytics_bp
 
 logger = setup_logger()
 
@@ -19,17 +20,18 @@ def create_app():
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(market_bp, url_prefix="/market")
     app.register_blueprint(options_bp, url_prefix="/options")
+    app.register_blueprint(analytics_bp, url_prefix="/analytics")
 
     @app.route("/health")
     def health():
         return {
             "app": "AdiTradeX Core",
-            "version": "3.0-Option-Chain",
+            "version": "4.0-Institutional-Analytics",
             "status": "ok",
-            "modules": ["auth", "dashboard", "market", "option_chain"]
+            "modules": ["auth", "dashboard", "market", "option_chain", "analytics"]
         }
 
-    logger.info("AdiTradeX Core v3.0 Option Chain Engine started")
+    logger.info("AdiTradeX Core v4.0 Institutional Analytics Engine started")
     return app
 
 app = create_app()

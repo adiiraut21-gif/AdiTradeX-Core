@@ -1,32 +1,36 @@
-# AdiTradeX Milestone 3 - Option Chain Engine
+# AdiTradeX Milestone 4 - Institutional Analytics Engine
 
-This release adds the first read-only Option Chain Engine to the AdiStrike v5 institutional dashboard.
+This release converts raw option-chain data into institutional analytics.
 
 ## Adds
 
-- NIFTY option chain
-- BANKNIFTY option chain
-- FINNIFTY option chain
-- MIDCPNIFTY option chain
-- Nearest expiry detection
-- ATM detection
-- CE/PE OI table
-- PCR calculation
-- Approximate Max Pain
-- Option chain dashboard page
-- JSON endpoints
+- PCR analysis
+- ATM PCR
+- Max Pain analytics
+- Highest Call OI / Put OI
+- Call walls and put bases
+- Primary support and resistance
+- Bull score
+- Bear score
+- Neutral score
+- Breakout probability
+- Breakdown probability
+- Range probability
+- Trade quality score
+- Institutional bias
+- AI-style institutional summary
+- Analytics dashboard
+- Analytics JSON endpoints
 
 ## URLs
 
-- `/options/`
-- `/options/?underlying=nifty`
-- `/options/?underlying=banknifty`
-- `/options/chain/nifty`
-- `/options/chain/banknifty`
-- `/options/reload-instruments`
+- `/analytics/`
+- `/analytics/?underlying=nifty`
+- `/analytics/?underlying=banknifty`
+- `/analytics/json/nifty`
+- `/analytics/json/banknifty`
+- `/analytics/summary/nifty`
 
-## Notes
+## Safety
 
-This is still read-only. No orders are placed.
-
-Max Pain is an approximation based on available strike OI in the displayed range.
+This is still read-only. No order placement.

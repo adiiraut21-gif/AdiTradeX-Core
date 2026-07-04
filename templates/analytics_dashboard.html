@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% set heading = "Institutional Analytics Engine" %}
+{% block content %}
+
+<div class="glass-card">
+  <h2>AlphaStrike V5.0 Institutional Analytics</h2>
+  <p>Raw option-chain data converted into institutional support, resistance, PCR, Max Pain, sentiment, and trade quality metrics.</p>
+
+  <div class="cta-row">
+    <a class="btn" href="/analytics/?underlying=nifty">NIFTY</a>
+    <a class="btn" href="/analytics/?underlying=banknifty">BANKNIFTY</a>
+    <a class="btn" href="/analytics/?underlying=finnifty">FINNIFTY</a>
+    <a class="btn" href="/options/">Option Chain</a>
+  </div>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+  {% else %}
+
+  <section class="metric-grid">
+    <div class="market-card">
+      <div class="market-symbol">{{ data.underlying }} Spot</div>
+      <div class="market-price">{{ data.spot }}</div>
+      <div class="market-meta"><span>ATM</span><span>{{ data.atm }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Institutional Bias</div>
+      <div class="market-price small-price">{{ data.institutional_bias }}</div>
+      <div class="market-meta"><span>Confidence</span><span>{{ data.confidence }}%</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Trade Quality</div>
+      <div class="market-price">{{ data.trade_quality }}</div>
+      <div class="market-meta"><span>Grade</span><span>{{ data.grade }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">PCR / Max Pain</div>
+      <div class="market-price small-price">{{ data.pcr }} / {{ data.max_pain }}</div>
+      <div class="market-meta"><span>Expiry</span><span>{{ data.expiry }}</span></div>
+    </div>
+  </section>
+
+  <section class="terminal-grid">
+    <div class="glass-card">
+      <h3>Support & Resistance</h3>
+      <div class="data-row"><span>Primary Support</span><b>{{ data.support }}</b></div>
+      <div class="data-row"><span>Primary Resistance</span><b>{{ data.resistance }}</b></div>
+      <div class="data-row"><span>ATM PCR</span><b>{{ data.atm_pcr }}</b></div>
+      <div class="data-row"><span>Max Pain</span><b>{{ data.max_pain }}</b></div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Probability Engine</h3>
+      <div class="data-row"><span>Bull Breakout</span><b>{{ data.bull_breakout_probability }}%</b></div>
+      <div class="data-row"><span>Bear Breakdown</span><b>{{ data.bear_breakdown_probability }}%</b></div>
+      <div class="data-row"><span>Range Probability</span><b>{{ data.range_probability }}%</b></div>
+      <div class="data-row"><span>Neutral Score</span><b>{{ data.neutral_score }}</b></div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Top Call Walls</h3>
+      {% for r in data.call_walls %}
+        <div class="data-row"><span>{{ r.strike }}</span><b>{{ r.oi }}</b></div>
+      {% endfor %}
+    </div>
+
+    <div class="glass-card">
+      <h3>Top Put Bases</h3>
+      {% for r in data.put_bases %}
+        <div class="data-row"><span>{{ r.strike }}</span><b>{{ r.oi }}</b></div>
+      {% endfor %}
+    </div>
+
+    <div class="glass-card console">
+      <h3>Institutional Summary</h3>
+      <p>{{ data.summary }}</p>
+    </div>
+  </section>
+
+  <div class="glass-card">
+    <h3>OI Heatmap</h3>
+    <table class="terminal-table">
+      <thead>
+        <tr>
+          <th>CE OI</th>
+          <th>CE LTP</th>
+          <th>Strike</th>
+          <th>PE LTP</th>
+          <th>PE OI</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in data.chain %}
+        <tr class="{% if r.is_atm %}atm-row{% endif %}">
+          <td>{{ r.ce_oi }}</td>
+          <td>{{ r.ce_ltp }}</td>
+          <td><b>{{ r.strike }}</b>{% if r.is_atm %} ATM{% endif %}</td>
+          <td>{{ r.pe_ltp }}</td>
+          <td>{{ r.pe_oi }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% endif %}
+</div>
+
+{% endblock %}
