@@ -4,6 +4,7 @@ from config.logger import setup_logger
 from database.db import init_db
 from auth.routes import auth_bp
 from dashboard.routes import dashboard_bp
+from market.routes import market_bp
 
 logger = setup_logger()
 
@@ -15,16 +16,18 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(market_bp, url_prefix="/market")
 
     @app.route("/health")
     def health():
         return {
             "app": "AdiTradeX Core",
-            "version": "1.5",
-            "status": "ok"
+            "version": "2.0-AdiStrike-v5-UI",
+            "status": "ok",
+            "modules": ["auth", "dashboard", "market"]
         }
 
-    logger.info("AdiTradeX Core v1.5 started")
+    logger.info("AdiTradeX Core v2.0 AdiStrike v5 UI started")
     return app
 
 app = create_app()

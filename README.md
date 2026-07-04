@@ -1,46 +1,46 @@
-# AdiTradeX Milestone 1.5 - Core Architecture
+# AdiTradeX Milestone 2 - AdiStrike v5.0 Institutional UI
 
-This upgrade turns the simple auth server into a modular AdiTradeX Core foundation.
+This release upgrades AdiTradeX Core into an institutional terminal-style interface.
 
-## What this version adds
+## Includes
 
-- Modular folder structure
-- SQLite-backed session storage
-- Structured logging
-- Centralized settings
-- Dashboard page
-- Cleaner Zerodha authentication flow
+- Zerodha authentication
+- Session storage
+- Live index market data
+- Market data API endpoints
+- AdiStrike AlphaX v5.0-style dashboard
+- Terminal-style sidebar
+- Dark institutional UI
+- System console
 - Read-only mode
 
 ## Main URLs
 
-- `/` - login page
-- `/zerodha/callback` - Zerodha redirect callback
-- `/health` - health check
-- `/status` - connection status
-- `/profile` - Kite profile test
-- `/dashboard` - AdiTradeX dashboard
-- `/logout` - clear saved session
+- `/` login page
+- `/dashboard` main institutional terminal
+- `/market/dashboard` live market dashboard
+- `/market/indices` JSON quotes
+- `/market/quote/nifty`
+- `/market/quote/banknifty`
+- `/market/snapshots`
+- `/status`
+- `/profile`
 
-## Render deployment
+## Deployment
 
-Upload all extracted files to GitHub and redeploy on Render.
+Upload extracted files and folders to GitHub and redeploy Render.
 
-Required environment variables:
+Required Render environment variables:
 
-- KITE_API_KEY
-- KITE_API_SECRET
-- FLASK_SECRET_KEY
-- LOG_LEVEL
+- `KITE_API_KEY`
+- `KITE_API_SECRET`
+- `FLASK_SECRET_KEY`
+- `LOG_LEVEL`
 
-Redirect URL remains:
+Redirect URL:
 
-https://aditradex-auth.onrender.com/zerodha/callback
+`https://aditradex-core.onrender.com/zerodha/callback`
 
-## Security
+## Safety
 
-Do not commit `.env`, API secret, or access token.
-
-## Next milestone
-
-Milestone 2 will add live index quotes and the market data module.
+This version is read-only. It does not place, modify, or cancel orders.

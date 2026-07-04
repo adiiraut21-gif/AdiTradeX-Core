@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% set heading = "Command Dashboard" %}
+{% block content %}
+<section class="metric-grid">
+  {% for q in quotes %}
+  <div class="market-card">
+    <div class="market-symbol">{{ q.symbol }}</div>
+    <div class="market-price">{{ q.last_price }}</div>
+    <div class="market-change {% if q.change_pct and q.change_pct >= 0 %}green-text{% else %}red-text{% endif %}">
+      {{ q.change_pct if q.change_pct is not none else "-" }}%
+    </div>
+    <div class="market-meta">
+      <span>H {{ q.high }}</span><span>L {{ q.low }}</span>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if not quotes %}
+  <div class="glass-card wide">
+    <h2>Market feed inactive</h2>
+    <p>{{ market_error or "Login with Zerodha to activate the market feed." }}</p>
+  </div>
+  {% endif %}
+</section>
+
+<section class="terminal-grid">
+  <div class="glass-card">
+    <h3>AlphaStrike v5.0 Modules</h3>
+    <div class="module-line done">Market Data Engine</div>
+    <div class="module-line next">Option Chain Engine</div>
+    <div class="module-line pending">Directional vs Spread Optimizer</div>
+    <div class="module-line pending">Institutional Risk Engine</div>
+    <div class="module-line pending">Research Lab</div>
+  </div>
+
+  <div class="glass-card">
+    <h3>Strategy Output Framework</h3>
+    <p>The final engine will compare:</p>
+    <div class="chips">
+      <span>Long CE</span><span>Long PE</span><span>Bull Call Spread</span>
+      <span>Bear Put Spread</span><span>Credit Spreads</span><span>No Trade</span>
+    </div>
+  </div>
+
+  <div class="glass-card console">
+    <h3>System Console</h3>
+    {% for e in events %}
+      <div class="log-line"><span>{{ e.created_at }}</span> {{ e.event_type }} • {{ e.message }}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% set heading = "Live Market Terminal" %}
+{% block content %}
+<div class="glass-card">
+  <h2>Market Data Engine</h2>
+  <p>Read-only live index data through Kite Connect.</p>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+  {% else %}
+    <table class="terminal-table">
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>LTP</th>
+          <th>Open</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>Close</th>
+          <th>Change %</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for q in quotes %}
+        <tr>
+          <td>{{ q.symbol }}</td>
+          <td>{{ q.last_price }}</td>
+          <td>{{ q.open }}</td>
+          <td>{{ q.high }}</td>
+          <td>{{ q.low }}</td>
+          <td>{{ q.close }}</td>
+          <td class="{% if q.change_pct and q.change_pct >= 0 %}green-text{% else %}red-text{% endif %}">
+            {{ q.change_pct if q.change_pct is not none else "-" }}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+{% endblock %}

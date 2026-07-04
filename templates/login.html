@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% set heading = "AdiStrike AlphaX v5.0" %}
+{% block content %}
+<section class="hero-grid">
+  <div class="glass-card hero">
+    <div class="badge">CORE v2.0 • ADISTRike v5 UI</div>
+    <h2>Trade like a disciplined derivatives desk.</h2>
+    <p>
+      Zerodha-connected, read-only market intelligence foundation for AlphaStrike,
+      Strategy Optimizer, Option Chain Engine, and Risk Engine.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="{{ login_url }}">Login with Zerodha</a>
+      <a class="btn" href="/dashboard">Open Dashboard</a>
+    </div>
+  </div>
+
+  <div class="glass-card status-panel">
+    <h3>System Status</h3>
+    {% if session %}
+      <div class="status big green-text">CONNECTED</div>
+      <p>{{ session.user_name }} • {{ session.user_id }}</p>
+      <p>Login: {{ session.login_time }}</p>
+    {% else %}
+      <div class="status big red-text">NOT CONNECTED</div>
+      <p>Login is required before market data can load.</p>
+    {% endif %}
+    <hr>
+    <p>Mode: <b>Read-only</b></p>
+    <p>Execution: <b>Disabled</b></p>
+  </div>
+</section>
+
+<section class="module-grid">
+  <div class="mini-card">Market Data Engine<span>Live index feed</span></div>
+  <div class="mini-card muted">Option Chain<span>Coming next</span></div>
+  <div class="mini-card muted">Strategy Optimizer<span>Directional vs spreads</span></div>
+  <div class="mini-card muted">Risk Engine<span>Capital protection</span></div>
+</section>
+{% endblock %}

@@ -2,7 +2,7 @@ import os
 
 class Settings:
     APP_NAME = "AdiTradeX Core"
-    VERSION = "1.5"
+    VERSION = "2.0-AdiStrike-v5-UI"
 
     KITE_API_KEY = os.getenv("KITE_API_KEY")
     KITE_API_SECRET = os.getenv("KITE_API_SECRET")

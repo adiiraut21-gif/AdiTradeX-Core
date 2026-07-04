@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title or "AdiTradeX" }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AX</div>
+        <div>
+          <div class="brand-title">AdiTradeX</div>
+          <div class="brand-sub">AlphaStrike v5.0</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/market/dashboard">Live Market</a>
+        <a href="#">Option Chain</a>
+        <a href="#">Strategy Lab</a>
+        <a href="#">Risk Engine</a>
+        <a href="#">Trade Journal</a>
+        <a href="#">Research Lab</a>
+        <a href="/status">API Status</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="dot"></span> Read-only mode
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="page-kicker">Institutional Options Trading Platform</div>
+          <h1>{{ heading or "AdiTradeX Terminal" }}</h1>
+        </div>
+        <div class="top-actions">
+          {% if session %}
+            <span class="pill green">Zerodha Connected</span>
+            <span class="pill">{{ session.user_id }}</span>
+          {% else %}
+            <span class="pill red">Not Connected</span>
+          {% endif %}
+          <a class="btn ghost" href="/">Login</a>
+        </div>
+      </header>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

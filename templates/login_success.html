@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set heading = "Connection Successful" %}
+{% block content %}
+<div class="glass-card">
+  <div class="success-icon">✓</div>
+  <h2>Zerodha Connected</h2>
+  <p>AdiTradeX Core is connected for today's session.</p>
+  <div class="data-row"><span>User</span><b>{{ user_name }}</b></div>
+  <div class="data-row"><span>User ID</span><b>{{ user_id }}</b></div>
+  <div class="cta-row">
+    <a class="btn primary" href="/dashboard">Open Terminal</a>
+    <a class="btn" href="/market/dashboard">Live Market</a>
+  </div>
+</div>
+{% endblock %}
