@@ -11,67 +11,92 @@ from technical_pro.service import (
 
 technical_pro_bp = Blueprint("technical_pro", __name__)
 
+# Stability fix:
+# Dashboard uses fewer key timeframes so Render/Kite does not timeout.
+# Full JSON endpoints remain available separately.
+DASHBOARD_TIMEFRAMES = ["day", "75m", "15m", "5m"]
+
 @technical_pro_bp.route("/")
 def technical_pro_dashboard():
     underlying = request.args.get("underlying", "nifty")
     try:
-        snapshot = get_technical_intelligence_snapshot(underlying)
-        trend = get_trend_intelligence(underlying)
-        momentum = get_momentum_intelligence(underlying)
-        vwap = get_vwap_intelligence(underlying)
-        structure = get_structure_intelligence(underlying)
-        return render_template("technical_pro_dashboard.html", snapshot=snapshot, trend=trend, momentum=momentum, vwap=vwap, structure=structure, error=None)
+        snapshot = get_technical_intelligence_snapshot(underlying, timeframes=DASHBOARD_TIMEFRAMES)
+        trend = get_trend_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES)
+        momentum = get_momentum_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES)
+        vwap = get_vwap_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES)
+        structure = get_structure_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES)
+
+        return render_template(
+            "technical_pro_dashboard.html",
+            snapshot=snapshot,
+            trend=trend,
+            momentum=momentum,
+            vwap=vwap,
+            structure=structure,
+            error=None
+        )
     except Exception as e:
-        return render_template("technical_pro_dashboard.html", snapshot=None, trend=None, momentum=None, vwap=None, structure=None, error=str(e))
+        return render_template(
+            "technical_pro_dashboard.html",
+            snapshot=None,
+            trend=None,
+            momentum=None,
+            vwap=None,
+            structure=None,
+            error=str(e)
+        ), 500
 
 @technical_pro_bp.route("/trend/<underlying>")
 def trend_json(underlying):
     try:
-        return jsonify(get_trend_intelligence(underlying))
+        return jsonify(get_trend_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @technical_pro_bp.route("/momentum/<underlying>")
 def momentum_json(underlying):
     try:
-        return jsonify(get_momentum_intelligence(underlying))
+        return jsonify(get_momentum_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @technical_pro_bp.route("/vwap/<underlying>")
 def vwap_json(underlying):
     try:
-        return jsonify(get_vwap_intelligence(underlying))
+        return jsonify(get_vwap_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @technical_pro_bp.route("/structure/<underlying>")
 def structure_json(underlying):
     try:
-        return jsonify(get_structure_intelligence(underlying))
+        return jsonify(get_structure_intelligence(underlying, timeframes=DASHBOARD_TIMEFRAMES))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @technical_pro_bp.route("/snapshot/<underlying>")
 def snapshot_json(underlying):
     try:
-        return jsonify(get_technical_intelligence_snapshot(underlying))
+        return jsonify(get_technical_intelligence_snapshot(underlying, timeframes=DASHBOARD_TIMEFRAMES))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @technical_pro_bp.route("/data/<underlying>")
 def technical_pro_data_page(underlying):
     try:
-        data = get_multi_timeframe_data(underlying, include_candles=False)
+        data = get_multi_timeframe_data(underlying, timeframes=DASHBOARD_TIMEFRAMES, include_candles=False)
         return render_template("technical_pro_data_dashboard.html", data=data, error=None)
     except Exception as e:
-        return render_template("technical_pro_data_dashboard.html", data=None, error=str(e))
+        return render_template("technical_pro_data_dashboard.html", data=None, error=str(e)), 500
 
 @technical_pro_bp.route("/json/<underlying>")
 def technical_pro_json(underlying):
     include = request.args.get("include_candles", "false").lower() == "true"
+    full = request.args.get("full", "false").lower() == "true"
+    timeframes = None if full else DASHBOARD_TIMEFRAMES
+
     try:
-        return jsonify(get_multi_timeframe_data(underlying, include_candles=include))
+        return jsonify(get_multi_timeframe_data(underlying, timeframes=timeframes, include_candles=include))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
