@@ -9,6 +9,7 @@ from strategy.payoff import (
     bear_call_credit_spread
 )
 from strategy.scorer import score_strategy, no_trade_strategy
+from strategy.institutional_scoring_integration import build_institutional_scoring_summary
 
 STEP_MAP = {
     "NIFTY": 50,
@@ -20,6 +21,7 @@ STEP_MAP = {
 def build_strategy_decision(underlying="nifty", interval="15m"):
     analytics = analyze_underlying(underlying)
     technical = analyze_technical(underlying, interval)
+    institutional = build_institutional_scoring_summary(underlying)
 
     chain = analytics["chain"]
     atm = analytics["atm"]
@@ -45,6 +47,19 @@ def build_strategy_decision(underlying="nifty", interval="15m"):
     best = scored[0]
     institutional_grade = "YES" if best["score"] >= 75 and best["name"] != "No Trade" else "NO"
 
+    if institutional["capital_preservation"]["action"] in ["WAIT", "NO TRADE"]:
+        best = {
+            "name": "No Trade",
+            "type": "Capital Preservation",
+            "direction": "Neutral",
+            "score": institutional["institutional_score"],
+            "ev_score": institutional["expected_value"]["ev_score"],
+            "confidence": institutional["engine_confidence"],
+            "risk_rating": "None",
+            "reason": institutional["capital_preservation"]["message"]
+        }
+        institutional_grade = "NO"
+
     return {
         "underlying": analytics["underlying"],
         "spot": analytics["spot"],
@@ -64,7 +79,8 @@ def build_strategy_decision(underlying="nifty", interval="15m"):
         "institutional_grade": institutional_grade,
         "final_verdict": final_verdict(best, institutional_grade),
         "analytics_summary": analytics["summary"],
-        "technical_summary": technical["summary"]
+        "technical_summary": technical["summary"],
+        "institutional_scoring": institutional
     }
 
 def final_verdict(best, institutional_grade):

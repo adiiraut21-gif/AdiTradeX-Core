@@ -1,16 +1,14 @@
-# AdiTradeX Milestone 6.1B-4
+# AdiTradeX Milestone 6.1B-5
 
-Add these new files into the existing strategy folder.
+This completes Milestone 6.1B by integrating Institutional Scoring into Strategy Lab.
 
-Files:
-- evidence_engine.py
-- decision_matrix.py
-- score_explainer.py
+Add:
+- strategy/capital_preservation.py
+- strategy/institutional_scoring_integration.py
+
+Replace:
+- strategy/service.py
+- templates/strategy_dashboard.html
 
 No app.py changes.
-No existing file replacements.
-
-This milestone adds:
-- Evidence Engine
-- Decision Matrix
-- Explainable Scoring Summary
+No new routes.
