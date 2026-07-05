@@ -32,7 +32,7 @@ def create_app():
     def health():
         return {
             "app": "AdiTradeX Core",
-            "version": "6.1A-2-Trend-Intelligence-Engine",
+            "version": "6.1A-3-Momentum-Intelligence-Engine",
             "status": "ok",
             "modules": [
                 "auth",
@@ -43,11 +43,12 @@ def create_app():
                 "technical",
                 "strategy",
                 "technical_pro",
-                "trend_intelligence"
+                "trend_intelligence",
+                "momentum_intelligence"
             ]
         }
 
-    logger.info("AdiTradeX Core v6.1A-2 Trend Intelligence Engine started")
+    logger.info("AdiTradeX Core v6.1A-3 Momentum Intelligence Engine started")
     return app
 
 app = create_app()

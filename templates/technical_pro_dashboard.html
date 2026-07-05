@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% set heading = "Technical Pro — Trend Intelligence Engine" %}
+{% set heading = "Technical Pro — Momentum Intelligence Engine" %}
 {% block content %}
 
 <div class="glass-card">
-  <h2>Milestone 6.1A-2: Trend Intelligence Engine</h2>
+  <h2>Milestone 6.1A-3: Momentum Intelligence Engine</h2>
   <p>
-    Multi-timeframe trend engine with EMA stack, structure, trend stage,
-    continuation probability, and institutional trend commentary.
+    Multi-timeframe technical intelligence now includes Trend Pro + Momentum Pro:
+    RSI regime, RSI slope, MACD expansion, histogram slope, acceleration, and divergence.
   </p>
 
   <div class="cta-row">
     <a class="btn" href="/technical-pro/?underlying=nifty">NIFTY</a>
     <a class="btn" href="/technical-pro/?underlying=banknifty">BANKNIFTY</a>
-    <a class="btn" href="/technical-pro/?underlying=finnifty">FINNIFTY</a>
     <a class="btn" href="/technical-pro/trend/nifty">Trend JSON</a>
-    <a class="btn" href="/technical-pro/data/nifty">Data Layer</a>
+    <a class="btn" href="/technical-pro/momentum/nifty">Momentum JSON</a>
+    <a class="btn" href="/technical-pro/snapshot/nifty">Snapshot JSON</a>
   </div>
 
   {% if error %}
@@ -23,41 +23,79 @@
 
   <section class="metric-grid">
     <div class="market-card">
-      <div class="market-symbol">{{ data.underlying }} Overall Trend</div>
-      <div class="market-price small-price">{{ data.consensus.overall_trend }}</div>
-      <div class="market-meta"><span>Score</span><span>{{ data.consensus.average_trend_score }}</span></div>
+      <div class="market-symbol">{{ snapshot.underlying }} Technical Bias</div>
+      <div class="market-price small-price">{{ snapshot.technical_bias }}</div>
+      <div class="market-meta"><span>Score</span><span>{{ snapshot.technical_score }}</span></div>
     </div>
 
     <div class="market-card">
-      <div class="market-symbol">Trend Consensus</div>
-      <div class="market-price">{{ data.consensus.trend_consensus }}%</div>
-      <div class="market-meta">
-        <span>{{ data.consensus.aligned_timeframes }}/{{ data.consensus.total_timeframes }}</span>
-        <span>Timeframes</span>
-      </div>
+      <div class="market-symbol">Trend</div>
+      <div class="market-price small-price">{{ trend.consensus.overall_trend }}</div>
+      <div class="market-meta"><span>Score</span><span>{{ trend.consensus.average_trend_score }}</span></div>
     </div>
 
     <div class="market-card">
-      <div class="market-symbol">Dominant Alignment</div>
-      <div class="market-price small-price">{{ data.consensus.overall_trend }}</div>
-      <div class="market-meta"><span>Engine</span><span>Trend Pro</span></div>
+      <div class="market-symbol">Momentum</div>
+      <div class="market-price small-price">{{ momentum.consensus.overall_momentum }}</div>
+      <div class="market-meta"><span>Score</span><span>{{ momentum.consensus.average_momentum_score }}</span></div>
     </div>
 
     <div class="market-card">
-      <div class="market-symbol">Mode</div>
-      <div class="market-price small-price">Read-only</div>
-      <div class="market-meta"><span>Orders</span><span>Disabled</span></div>
+      <div class="market-symbol">Momentum Consensus</div>
+      <div class="market-price">{{ momentum.consensus.momentum_consensus }}%</div>
+      <div class="market-meta"><span>{{ momentum.consensus.aligned_timeframes }}/{{ momentum.consensus.total_timeframes }}</span><span>TFs</span></div>
     </div>
   </section>
 
   <section class="terminal-grid">
     <div class="glass-card console">
-      <h3>Institutional Trend Commentary</h3>
-      <p>{{ data.commentary }}</p>
+      <h3>Trend Commentary</h3>
+      <p>{{ trend.commentary }}</p>
+    </div>
+
+    <div class="glass-card console">
+      <h3>Momentum Commentary</h3>
+      <p>{{ momentum.commentary }}</p>
     </div>
 
     <div class="glass-card">
-      <h3>Multi-Timeframe Trend Heatmap</h3>
+      <h3>Momentum Heatmap</h3>
+      <table class="terminal-table">
+        <thead>
+          <tr>
+            <th>TF</th>
+            <th>Momentum</th>
+            <th>Score</th>
+            <th>RSI</th>
+            <th>RSI Regime</th>
+            <th>MACD Regime</th>
+            <th>Histogram Slope</th>
+            <th>Divergence</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tf, item in momentum.timeframes.items() %}
+          <tr>
+            <td><b>{{ tf }}</b></td>
+            {% if item.status == "ok" %}
+              <td>{{ item.momentum }}</td>
+              <td>{{ item.momentum_score }}</td>
+              <td>{{ item.rsi14 }}</td>
+              <td>{{ item.rsi_regime }}</td>
+              <td>{{ item.macd_regime }}</td>
+              <td>{{ item.histogram_slope }}</td>
+              <td>{{ item.divergence }}</td>
+            {% else %}
+              <td colspan="7">{{ item.error }}</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass-card">
+      <h3>Trend Heatmap</h3>
       <table class="terminal-table">
         <thead>
           <tr>
@@ -67,11 +105,10 @@
             <th>EMA Alignment</th>
             <th>Structure</th>
             <th>Stage</th>
-            <th>Continuation</th>
           </tr>
         </thead>
         <tbody>
-          {% for tf, item in data.timeframes.items() %}
+          {% for tf, item in trend.timeframes.items() %}
           <tr>
             <td><b>{{ tf }}</b></td>
             {% if item.status == "ok" %}
@@ -80,31 +117,14 @@
               <td>{{ item.ema_alignment }}</td>
               <td>{{ item.structure.structure }}</td>
               <td>{{ item.trend_stage }}</td>
-              <td>{{ item.continuation_probability }}%</td>
             {% else %}
-              <td colspan="6">{{ item.error }}</td>
+              <td colspan="5">{{ item.error }}</td>
             {% endif %}
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
-    {% for tf, item in data.timeframes.items() %}
-      {% if item.status == "ok" %}
-      <div class="glass-card">
-        <h3>{{ tf }} Trend Details</h3>
-        <div class="data-row"><span>Trend</span><b>{{ item.trend }}</b></div>
-        <div class="data-row"><span>Trend Score</span><b>{{ item.trend_score }}</b></div>
-        <div class="data-row"><span>EMA Alignment</span><b>{{ item.ema_alignment }}</b></div>
-        <div class="data-row"><span>EMA Score</span><b>{{ item.ema_alignment_score }}</b></div>
-        <div class="data-row"><span>Market Structure</span><b>{{ item.structure.structure }}</b></div>
-        <div class="data-row"><span>Trend Stage</span><b>{{ item.trend_stage }}</b></div>
-        <div class="data-row"><span>Trend Age</span><b>{{ item.trend_age }}</b></div>
-        <div class="data-row"><span>Pullback Probability</span><b>{{ item.pullback_probability }}%</b></div>
-      </div>
-      {% endif %}
-    {% endfor %}
   </section>
 
   {% endif %}

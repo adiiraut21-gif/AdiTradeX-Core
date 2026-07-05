@@ -2,7 +2,7 @@ import os
 
 class Settings:
     APP_NAME = "AdiTradeX Core"
-    VERSION = "6.1A-2-Trend-Intelligence-Engine"
+    VERSION = "6.1A-3-Momentum-Intelligence-Engine"
 
     KITE_API_KEY = os.getenv("KITE_API_KEY")
     KITE_API_SECRET = os.getenv("KITE_API_SECRET")

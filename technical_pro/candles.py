@@ -50,19 +50,15 @@ def fetch_raw_candles(underlying="nifty", timeframe="15m"):
 def resample_to_75m(candles):
     if not candles:
         return []
-
     grouped = []
     bucket = []
-
     for candle in candles:
         bucket.append(candle)
         if len(bucket) == 5:
             grouped.append(build_group_candle(bucket))
             bucket = []
-
     if bucket:
         grouped.append(build_group_candle(bucket))
-
     return grouped
 
 def build_group_candle(bucket):
@@ -77,25 +73,14 @@ def build_group_candle(bucket):
 
 def candle_summary(candles):
     if not candles:
-        return {
-            "count": 0,
-            "first_time": None,
-            "last_time": None,
-            "last_close": None,
-            "change": None,
-            "change_pct": None
-        }
-
+        return {"count": 0, "first_time": None, "last_time": None, "last_close": None, "change": None, "change_pct": None}
     first = candles[0]
     last = candles[-1]
-
     change = None
     change_pct = None
-
     if first.get("close") and last.get("close"):
         change = round(last["close"] - first["close"], 2)
         change_pct = round((change / first["close"]) * 100, 2)
-
     return {
         "count": len(candles),
         "first_time": first.get("time"),

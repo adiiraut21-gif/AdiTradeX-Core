@@ -1,5 +1,11 @@
 from flask import Blueprint, jsonify, render_template, request
-from technical_pro.service import get_multi_timeframe_data, get_timeframe_snapshot, get_trend_intelligence
+from technical_pro.service import (
+    get_multi_timeframe_data,
+    get_timeframe_snapshot,
+    get_trend_intelligence,
+    get_momentum_intelligence,
+    get_technical_intelligence_snapshot
+)
 
 technical_pro_bp = Blueprint("technical_pro", __name__)
 
@@ -7,10 +13,33 @@ technical_pro_bp = Blueprint("technical_pro", __name__)
 def technical_pro_dashboard():
     underlying = request.args.get("underlying", "nifty")
     try:
-        data = get_trend_intelligence(underlying)
-        return render_template("technical_pro_dashboard.html", data=data, error=None)
+        trend = get_trend_intelligence(underlying)
+        momentum = get_momentum_intelligence(underlying)
+        snapshot = get_technical_intelligence_snapshot(underlying)
+        return render_template("technical_pro_dashboard.html", trend=trend, momentum=momentum, snapshot=snapshot, error=None)
     except Exception as e:
-        return render_template("technical_pro_dashboard.html", data=None, error=str(e))
+        return render_template("technical_pro_dashboard.html", trend=None, momentum=None, snapshot=None, error=str(e))
+
+@technical_pro_bp.route("/trend/<underlying>")
+def trend_json(underlying):
+    try:
+        return jsonify(get_trend_intelligence(underlying))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@technical_pro_bp.route("/momentum/<underlying>")
+def momentum_json(underlying):
+    try:
+        return jsonify(get_momentum_intelligence(underlying))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@technical_pro_bp.route("/snapshot/<underlying>")
+def snapshot_json(underlying):
+    try:
+        return jsonify(get_technical_intelligence_snapshot(underlying))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @technical_pro_bp.route("/data/<underlying>")
 def technical_pro_data_page(underlying):
@@ -25,13 +54,6 @@ def technical_pro_json(underlying):
     include = request.args.get("include_candles", "false").lower() == "true"
     try:
         return jsonify(get_multi_timeframe_data(underlying, include_candles=include))
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@technical_pro_bp.route("/trend/<underlying>")
-def trend_json(underlying):
-    try:
-        return jsonify(get_trend_intelligence(underlying))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -1,24 +1,8 @@
 TECHNICAL_PRO_SYMBOLS = {
-    "nifty": {
-        "display": "NIFTY",
-        "quote": "NSE:NIFTY 50",
-        "instrument_token": 256265
-    },
-    "banknifty": {
-        "display": "BANKNIFTY",
-        "quote": "NSE:NIFTY BANK",
-        "instrument_token": 260105
-    },
-    "finnifty": {
-        "display": "FINNIFTY",
-        "quote": "NSE:NIFTY FIN SERVICE",
-        "instrument_token": 257801
-    },
-    "midcpnifty": {
-        "display": "MIDCPNIFTY",
-        "quote": "NSE:NIFTY MID SELECT",
-        "instrument_token": 288009
-    }
+    "nifty": {"display": "NIFTY", "quote": "NSE:NIFTY 50", "instrument_token": 256265},
+    "banknifty": {"display": "BANKNIFTY", "quote": "NSE:NIFTY BANK", "instrument_token": 260105},
+    "finnifty": {"display": "FINNIFTY", "quote": "NSE:NIFTY FIN SERVICE", "instrument_token": 257801},
+    "midcpnifty": {"display": "MIDCPNIFTY", "quote": "NSE:NIFTY MID SELECT", "instrument_token": 288009}
 }
 
 KITE_INTERVALS = {
