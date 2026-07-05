@@ -32,7 +32,7 @@ def create_app():
     def health():
         return {
             "app": "AdiTradeX Core",
-            "version": "6.1A-1-Multi-Timeframe-Data-Layer",
+            "version": "6.1A-2-Trend-Intelligence-Engine",
             "status": "ok",
             "modules": [
                 "auth",
@@ -42,11 +42,12 @@ def create_app():
                 "analytics",
                 "technical",
                 "strategy",
-                "technical_pro"
+                "technical_pro",
+                "trend_intelligence"
             ]
         }
 
-    logger.info("AdiTradeX Core v6.1A-1 Multi-Timeframe Data Layer started")
+    logger.info("AdiTradeX Core v6.1A-2 Trend Intelligence Engine started")
     return app
 
 app = create_app()

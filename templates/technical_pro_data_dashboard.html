@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% set heading = "Technical Pro — Multi-Timeframe Data Layer" %}
+{% block content %}
+
+<div class="glass-card">
+  <h2>Multi-Timeframe Data Layer</h2>
+  <p>Raw normalized candle summaries across all supported timeframes.</p>
+
+  <div class="cta-row">
+    <a class="btn" href="/technical-pro/?underlying=nifty">Trend Engine</a>
+    <a class="btn" href="/technical-pro/data/nifty">NIFTY Data</a>
+    <a class="btn" href="/technical-pro/data/banknifty">BANKNIFTY Data</a>
+    <a class="btn" href="/technical-pro/json/nifty">JSON</a>
+  </div>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+  {% else %}
+
+  <section class="metric-grid">
+    {% for tf, item in data.timeframes.items() %}
+      <div class="market-card">
+        <div class="market-symbol">{{ data.underlying }} • {{ tf }}</div>
+        {% if item.status == "ok" %}
+          <div class="market-price small-price">{{ item.summary.last_close }}</div>
+          <div class="market-change {% if item.summary.change_pct and item.summary.change_pct >= 0 %}green-text{% else %}red-text{% endif %}">
+            {{ item.summary.change_pct if item.summary.change_pct is not none else "-" }}%
+          </div>
+          <div class="market-meta">
+            <span>Count {{ item.summary.count }}</span>
+            <span>Vol {{ item.summary.total_volume }}</span>
+          </div>
+        {% else %}
+          <div class="market-price small-price red-text">ERROR</div>
+          <div class="market-meta"><span>{{ item.error }}</span></div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </section>
+
+  {% endif %}
+</div>
+
+{% endblock %}

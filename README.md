@@ -1,32 +1,38 @@
-# AdiTradeX Milestone 6.1A-1 - Multi-Timeframe Data Layer
+# AdiTradeX Milestone 6.1A-2 - Trend Intelligence Engine
 
-This is the first internal build of Milestone 6.1A.
+This is the second internal build of Milestone 6.1A.
 
 ## Adds
 
-- `technical_pro` module
-- Multi-timeframe candle fetching
-- 1m, 3m, 5m, 15m, 30m, 60m, day support
-- Synthetic 75m candles built from 15m data
-- Candle normalization
-- Timeframe summary
-- Multi-timeframe dashboard
-- JSON endpoints
+- Trend Engine Pro
+- EMA 9 / 20 / 50 / 100 / 200
+- EMA stack alignment
+- EMA alignment score
+- Multi-timeframe trend score
+- Market structure detection
+- Trend stage detection
+- Trend age
+- Continuation probability
+- Pullback probability
+- Multi-timeframe trend consensus
+- Institutional trend commentary
+- Trend Intelligence dashboard
 
-## New URLs
+## URLs
 
 - `/technical-pro/`
 - `/technical-pro/?underlying=nifty`
 - `/technical-pro/?underlying=banknifty`
+- `/technical-pro/trend/nifty`
+- `/technical-pro/trend/banknifty`
+- `/technical-pro/data/nifty`
 - `/technical-pro/json/nifty`
-- `/technical-pro/json/nifty?include_candles=true`
-- `/technical-pro/candles/nifty/15m`
 - `/technical-pro/candles/nifty/75m`
 
 ## Important
 
-This is a data-layer milestone. It does not yet change Strategy Engine scoring.
-6.1A-2 will add the advanced technical engines on top of this data layer.
+This improves Technical Pro only. It does not yet modify Strategy Engine scoring.
+6.1A-3 will add Momentum Engine Pro.
 
 ## Safety
 

@@ -25,7 +25,6 @@ def fetch_raw_candles(underlying="nifty", timeframe="15m"):
         raise RuntimeError(f"Unsupported underlying: {underlying}")
 
     if timeframe == "75m":
-        # Kite does not provide 75m directly; build it from 15m candles.
         base_candles = fetch_raw_candles(underlying, "15m")
         return resample_to_75m(base_candles)
 
@@ -57,7 +56,6 @@ def resample_to_75m(candles):
 
     for candle in candles:
         bucket.append(candle)
-
         if len(bucket) == 5:
             grouped.append(build_group_candle(bucket))
             bucket = []

@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% set heading = "Technical Pro — Multi-Timeframe Data Layer" %}
+{% set heading = "Technical Pro — Trend Intelligence Engine" %}
 {% block content %}
 
 <div class="glass-card">
-  <h2>Milestone 6.1A-1: Multi-Timeframe Engine</h2>
+  <h2>Milestone 6.1A-2: Trend Intelligence Engine</h2>
   <p>
-    This is the data foundation for Quant Technical Engine Pro. It fetches and normalizes
-    historical candles across multiple timeframes, including synthetic 75-minute candles.
+    Multi-timeframe trend engine with EMA stack, structure, trend stage,
+    continuation probability, and institutional trend commentary.
   </p>
 
   <div class="cta-row">
     <a class="btn" href="/technical-pro/?underlying=nifty">NIFTY</a>
     <a class="btn" href="/technical-pro/?underlying=banknifty">BANKNIFTY</a>
     <a class="btn" href="/technical-pro/?underlying=finnifty">FINNIFTY</a>
-    <a class="btn" href="/technical-pro/json/nifty">JSON</a>
-    <a class="btn" href="/technical/">Old Technical Engine</a>
+    <a class="btn" href="/technical-pro/trend/nifty">Trend JSON</a>
+    <a class="btn" href="/technical-pro/data/nifty">Data Layer</a>
   </div>
 
   {% if error %}
@@ -22,73 +22,90 @@
   {% else %}
 
   <section class="metric-grid">
-    {% for tf, item in data.timeframes.items() %}
-      <div class="market-card">
-        <div class="market-symbol">{{ data.underlying }} • {{ tf }}</div>
+    <div class="market-card">
+      <div class="market-symbol">{{ data.underlying }} Overall Trend</div>
+      <div class="market-price small-price">{{ data.consensus.overall_trend }}</div>
+      <div class="market-meta"><span>Score</span><span>{{ data.consensus.average_trend_score }}</span></div>
+    </div>
 
-        {% if item.status == "ok" %}
-          <div class="market-price small-price">{{ item.summary.last_close }}</div>
-          <div class="market-change {% if item.summary.change_pct and item.summary.change_pct >= 0 %}green-text{% else %}red-text{% endif %}">
-            {{ item.summary.change_pct if item.summary.change_pct is not none else "-" }}%
-          </div>
-          <div class="market-meta">
-            <span>Count {{ item.summary.count }}</span>
-            <span>Vol {{ item.summary.total_volume }}</span>
-          </div>
-        {% else %}
-          <div class="market-price small-price red-text">ERROR</div>
-          <div class="market-meta">
-            <span>{{ item.error }}</span>
-          </div>
-        {% endif %}
+    <div class="market-card">
+      <div class="market-symbol">Trend Consensus</div>
+      <div class="market-price">{{ data.consensus.trend_consensus }}%</div>
+      <div class="market-meta">
+        <span>{{ data.consensus.aligned_timeframes }}/{{ data.consensus.total_timeframes }}</span>
+        <span>Timeframes</span>
       </div>
-    {% endfor %}
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Dominant Alignment</div>
+      <div class="market-price small-price">{{ data.consensus.overall_trend }}</div>
+      <div class="market-meta"><span>Engine</span><span>Trend Pro</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Mode</div>
+      <div class="market-price small-price">Read-only</div>
+      <div class="market-meta"><span>Orders</span><span>Disabled</span></div>
+    </div>
   </section>
 
-  <div class="glass-card">
-    <h3>Timeframe Summary</h3>
-    <table class="terminal-table">
-      <thead>
-        <tr>
-          <th>Timeframe</th>
-          <th>Status</th>
-          <th>Candles</th>
-          <th>Last Close</th>
-          <th>Change %</th>
-          <th>High</th>
-          <th>Low</th>
-          <th>Last Candle</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for tf, item in data.timeframes.items() %}
-        <tr>
-          <td><b>{{ tf }}</b></td>
-          <td>{{ item.status }}</td>
-          {% if item.status == "ok" %}
-            <td>{{ item.summary.count }}</td>
-            <td>{{ item.summary.last_close }}</td>
-            <td>{{ item.summary.change_pct }}</td>
-            <td>{{ item.summary.high }}</td>
-            <td>{{ item.summary.low }}</td>
-            <td>{{ item.summary.last_time }}</td>
-          {% else %}
-            <td colspan="6">{{ item.error }}</td>
-          {% endif %}
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <section class="terminal-grid">
+    <div class="glass-card console">
+      <h3>Institutional Trend Commentary</h3>
+      <p>{{ data.commentary }}</p>
+    </div>
 
-  <div class="glass-card console">
-    <h3>Next Internal Build: 6.1A-2</h3>
-    <p>
-      The next update will add Trend Engine Pro, Momentum Engine Pro,
-      VWAP Engine, Volatility Engine, ADX Engine, and Market Structure Pro
-      on top of this multi-timeframe data layer.
-    </p>
-  </div>
+    <div class="glass-card">
+      <h3>Multi-Timeframe Trend Heatmap</h3>
+      <table class="terminal-table">
+        <thead>
+          <tr>
+            <th>TF</th>
+            <th>Trend</th>
+            <th>Score</th>
+            <th>EMA Alignment</th>
+            <th>Structure</th>
+            <th>Stage</th>
+            <th>Continuation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tf, item in data.timeframes.items() %}
+          <tr>
+            <td><b>{{ tf }}</b></td>
+            {% if item.status == "ok" %}
+              <td>{{ item.trend }}</td>
+              <td>{{ item.trend_score }}</td>
+              <td>{{ item.ema_alignment }}</td>
+              <td>{{ item.structure.structure }}</td>
+              <td>{{ item.trend_stage }}</td>
+              <td>{{ item.continuation_probability }}%</td>
+            {% else %}
+              <td colspan="6">{{ item.error }}</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% for tf, item in data.timeframes.items() %}
+      {% if item.status == "ok" %}
+      <div class="glass-card">
+        <h3>{{ tf }} Trend Details</h3>
+        <div class="data-row"><span>Trend</span><b>{{ item.trend }}</b></div>
+        <div class="data-row"><span>Trend Score</span><b>{{ item.trend_score }}</b></div>
+        <div class="data-row"><span>EMA Alignment</span><b>{{ item.ema_alignment }}</b></div>
+        <div class="data-row"><span>EMA Score</span><b>{{ item.ema_alignment_score }}</b></div>
+        <div class="data-row"><span>Market Structure</span><b>{{ item.structure.structure }}</b></div>
+        <div class="data-row"><span>Trend Stage</span><b>{{ item.trend_stage }}</b></div>
+        <div class="data-row"><span>Trend Age</span><b>{{ item.trend_age }}</b></div>
+        <div class="data-row"><span>Pullback Probability</span><b>{{ item.pullback_probability }}%</b></div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </section>
 
   {% endif %}
 </div>
