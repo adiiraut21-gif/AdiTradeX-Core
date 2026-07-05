@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% set heading = "Quant Technical Engine" %}
+{% block content %}
+
+<div class="glass-card">
+  <h2>AlphaStrike V5.0 Quant Technical Engine</h2>
+  <p>Multi-timeframe technical engine using live historical candles from Kite Connect.</p>
+
+  <div class="cta-row">
+    <a class="btn" href="/technical/?underlying=nifty&interval=5m">NIFTY 5m</a>
+    <a class="btn" href="/technical/?underlying=nifty&interval=15m">NIFTY 15m</a>
+    <a class="btn" href="/technical/?underlying=nifty&interval=day">NIFTY Daily</a>
+    <a class="btn" href="/technical/?underlying=banknifty&interval=15m">BANKNIFTY</a>
+    <a class="btn" href="/analytics/">Analytics</a>
+  </div>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+  {% else %}
+
+  <section class="metric-grid">
+    <div class="market-card">
+      <div class="market-symbol">{{ data.underlying }} Close</div>
+      <div class="market-price">{{ data.latest_close }}</div>
+      <div class="market-meta"><span>Interval</span><span>{{ data.interval }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Technical Bias</div>
+      <div class="market-price small-price">{{ data.technical_bias }}</div>
+      <div class="market-meta"><span>Grade</span><span>{{ data.scores.grade }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Technical Score</div>
+      <div class="market-price">{{ data.scores.technical_score }}</div>
+      <div class="market-meta"><span>Trend</span><span>{{ data.scores.trend_score }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">RSI / ATR</div>
+      <div class="market-price small-price">{{ data.rsi14 }} / {{ data.atr14 }}</div>
+      <div class="market-meta"><span>VWAP</span><span>{{ data.vwap }}</span></div>
+    </div>
+  </section>
+
+  <section class="terminal-grid">
+    <div class="glass-card">
+      <h3>EMA Alignment</h3>
+      <div class="data-row"><span>EMA 9</span><b>{{ data.ema.ema9 }}</b></div>
+      <div class="data-row"><span>EMA 20</span><b>{{ data.ema.ema20 }}</b></div>
+      <div class="data-row"><span>EMA 50</span><b>{{ data.ema.ema50 }}</b></div>
+      <div class="data-row"><span>EMA 200</span><b>{{ data.ema.ema200 }}</b></div>
+    </div>
+
+    <div class="glass-card">
+      <h3>MACD & Bollinger</h3>
+      <div class="data-row"><span>MACD</span><b>{{ data.macd.macd }}</b></div>
+      <div class="data-row"><span>Signal</span><b>{{ data.macd.signal }}</b></div>
+      <div class="data-row"><span>Histogram</span><b>{{ data.macd.histogram }}</b></div>
+      <div class="data-row"><span>BB Upper / Lower</span><b>{{ data.bollinger.upper }} / {{ data.bollinger.lower }}</b></div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Market Structure</h3>
+      <div class="data-row"><span>Structure</span><b>{{ data.structure.structure }}</b></div>
+      <div class="data-row"><span>Swing High</span><b>{{ data.structure.last_swing_high }}</b></div>
+      <div class="data-row"><span>Swing Low</span><b>{{ data.structure.last_swing_low }}</b></div>
+      <div class="data-row"><span>Structure Score</span><b>{{ data.scores.structure_score }}</b></div>
+    </div>
+
+    <div class="glass-card">
+      <h3>Score Breakdown</h3>
+      <div class="data-row"><span>Trend Score</span><b>{{ data.scores.trend_score }}</b></div>
+      <div class="data-row"><span>Momentum Score</span><b>{{ data.scores.momentum_score }}</b></div>
+      <div class="data-row"><span>Volatility Score</span><b>{{ data.scores.volatility_score }}</b></div>
+      <div class="data-row"><span>Technical Score</span><b>{{ data.scores.technical_score }}</b></div>
+    </div>
+
+    <div class="glass-card console">
+      <h3>AI Technical Summary</h3>
+      <p>{{ data.summary }}</p>
+    </div>
+  </section>
+
+  <div class="glass-card">
+    <h3>Recent Candles</h3>
+    <table class="terminal-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Open</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>Close</th>
+          <th>Volume</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in data.candles %}
+        <tr>
+          <td>{{ c.time }}</td>
+          <td>{{ c.open }}</td>
+          <td>{{ c.high }}</td>
+          <td>{{ c.low }}</td>
+          <td>{{ c.close }}</td>
+          <td>{{ c.volume }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% endif %}
+</div>
+
+{% endblock %}

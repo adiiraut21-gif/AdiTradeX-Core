@@ -1,36 +1,45 @@
-# AdiTradeX Milestone 4 - Institutional Analytics Engine
+# AdiTradeX Milestone 5 - Quant Technical Engine
 
-This release converts raw option-chain data into institutional analytics.
+This release adds the AlphaStrike V5.0 Quant Technical Engine.
 
 ## Adds
 
-- PCR analysis
-- ATM PCR
-- Max Pain analytics
-- Highest Call OI / Put OI
-- Call walls and put bases
-- Primary support and resistance
-- Bull score
-- Bear score
-- Neutral score
-- Breakout probability
-- Breakdown probability
-- Range probability
-- Trade quality score
-- Institutional bias
-- AI-style institutional summary
-- Analytics dashboard
-- Analytics JSON endpoints
+- Historical candle fetch from Kite Connect
+- Multi-timeframe support
+- EMA 9 / 20 / 50 / 200
+- RSI
+- MACD
+- ATR
+- Bollinger Bands
+- VWAP approximation
+- Market structure detection
+- Trend score
+- Momentum score
+- Volatility score
+- Technical score
+- Technical bias
+- AI technical summary
+- Technical dashboard
+- JSON API
 
 ## URLs
 
-- `/analytics/`
-- `/analytics/?underlying=nifty`
-- `/analytics/?underlying=banknifty`
-- `/analytics/json/nifty`
-- `/analytics/json/banknifty`
-- `/analytics/summary/nifty`
+- `/technical/`
+- `/technical/?underlying=nifty&interval=15m`
+- `/technical/?underlying=nifty&interval=5m`
+- `/technical/?underlying=banknifty&interval=15m`
+- `/technical/json/nifty?interval=15m`
+
+## Supported intervals
+
+- `1m`
+- `3m`
+- `5m`
+- `15m`
+- `30m`
+- `60m`
+- `day`
 
 ## Safety
 
-This is still read-only. No order placement.
+Read-only mode. No orders are placed.
