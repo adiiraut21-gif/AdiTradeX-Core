@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% set heading = "Technical Pro — Multi-Timeframe Data Layer" %}
+{% block content %}
+
+<div class="glass-card">
+  <h2>Milestone 6.1A-1: Multi-Timeframe Engine</h2>
+  <p>
+    This is the data foundation for Quant Technical Engine Pro. It fetches and normalizes
+    historical candles across multiple timeframes, including synthetic 75-minute candles.
+  </p>
+
+  <div class="cta-row">
+    <a class="btn" href="/technical-pro/?underlying=nifty">NIFTY</a>
+    <a class="btn" href="/technical-pro/?underlying=banknifty">BANKNIFTY</a>
+    <a class="btn" href="/technical-pro/?underlying=finnifty">FINNIFTY</a>
+    <a class="btn" href="/technical-pro/json/nifty">JSON</a>
+    <a class="btn" href="/technical/">Old Technical Engine</a>
+  </div>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+  {% else %}
+
+  <section class="metric-grid">
+    {% for tf, item in data.timeframes.items() %}
+      <div class="market-card">
+        <div class="market-symbol">{{ data.underlying }} • {{ tf }}</div>
+
+        {% if item.status == "ok" %}
+          <div class="market-price small-price">{{ item.summary.last_close }}</div>
+          <div class="market-change {% if item.summary.change_pct and item.summary.change_pct >= 0 %}green-text{% else %}red-text{% endif %}">
+            {{ item.summary.change_pct if item.summary.change_pct is not none else "-" }}%
+          </div>
+          <div class="market-meta">
+            <span>Count {{ item.summary.count }}</span>
+            <span>Vol {{ item.summary.total_volume }}</span>
+          </div>
+        {% else %}
+          <div class="market-price small-price red-text">ERROR</div>
+          <div class="market-meta">
+            <span>{{ item.error }}</span>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </section>
+
+  <div class="glass-card">
+    <h3>Timeframe Summary</h3>
+    <table class="terminal-table">
+      <thead>
+        <tr>
+          <th>Timeframe</th>
+          <th>Status</th>
+          <th>Candles</th>
+          <th>Last Close</th>
+          <th>Change %</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>Last Candle</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for tf, item in data.timeframes.items() %}
+        <tr>
+          <td><b>{{ tf }}</b></td>
+          <td>{{ item.status }}</td>
+          {% if item.status == "ok" %}
+            <td>{{ item.summary.count }}</td>
+            <td>{{ item.summary.last_close }}</td>
+            <td>{{ item.summary.change_pct }}</td>
+            <td>{{ item.summary.high }}</td>
+            <td>{{ item.summary.low }}</td>
+            <td>{{ item.summary.last_time }}</td>
+          {% else %}
+            <td colspan="6">{{ item.error }}</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="glass-card console">
+    <h3>Next Internal Build: 6.1A-2</h3>
+    <p>
+      The next update will add Trend Engine Pro, Momentum Engine Pro,
+      VWAP Engine, Volatility Engine, ADX Engine, and Market Structure Pro
+      on top of this multi-timeframe data layer.
+    </p>
+  </div>
+
+  {% endif %}
+</div>
+
+{% endblock %}

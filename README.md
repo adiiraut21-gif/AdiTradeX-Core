@@ -1,36 +1,33 @@
-# AdiTradeX Milestone 6 - Strategy Decision Engine
+# AdiTradeX Milestone 6.1A-1 - Multi-Timeframe Data Layer
 
-This is an incremental update on top of Milestone 5.
+This is the first internal build of Milestone 6.1A.
 
 ## Adds
 
-- Strategy Lab activated
-- Directional vs spread comparison
-- Long Call
-- Long Put
-- Bull Call Spread
-- Bear Put Spread
-- Bull Put Credit Spread
-- Bear Call Credit Spread
-- No Trade
-- EV-style scoring
-- Confidence score
-- Risk rating
-- Institutional grade verdict
-- Recommended trade structure
-- Combines:
-  - Institutional analytics
-  - Quant technical engine
-  - Option-chain data
+- `technical_pro` module
+- Multi-timeframe candle fetching
+- 1m, 3m, 5m, 15m, 30m, 60m, day support
+- Synthetic 75m candles built from 15m data
+- Candle normalization
+- Timeframe summary
+- Multi-timeframe dashboard
+- JSON endpoints
 
-## URLs
+## New URLs
 
-- `/strategy/`
-- `/strategy/?underlying=nifty&interval=15m`
-- `/strategy/?underlying=nifty&interval=5m`
-- `/strategy/?underlying=banknifty&interval=15m`
-- `/strategy/json/nifty?interval=15m`
+- `/technical-pro/`
+- `/technical-pro/?underlying=nifty`
+- `/technical-pro/?underlying=banknifty`
+- `/technical-pro/json/nifty`
+- `/technical-pro/json/nifty?include_candles=true`
+- `/technical-pro/candles/nifty/15m`
+- `/technical-pro/candles/nifty/75m`
+
+## Important
+
+This is a data-layer milestone. It does not yet change Strategy Engine scoring.
+6.1A-2 will add the advanced technical engines on top of this data layer.
 
 ## Safety
 
-Read-only mode. No orders are placed, modified, or cancelled.
+Read-only mode. No orders are placed.
