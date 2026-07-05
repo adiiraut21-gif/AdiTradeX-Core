@@ -1,20 +1,19 @@
 {% extends "base.html" %}
-{% set heading = "Technical Pro — Momentum Intelligence Engine" %}
+{% set heading = "Technical Pro — VWAP + Structure Intelligence" %}
 {% block content %}
 
 <div class="glass-card">
-  <h2>Milestone 6.1A-3: Momentum Intelligence Engine</h2>
+  <h2>Milestone 6.1A-4: VWAP + Market Structure Intelligence</h2>
   <p>
-    Multi-timeframe technical intelligence now includes Trend Pro + Momentum Pro:
-    RSI regime, RSI slope, MACD expansion, histogram slope, acceleration, and divergence.
+    Technical Pro now combines Trend, Momentum, VWAP, and Market Structure into one richer technical intelligence snapshot.
   </p>
 
   <div class="cta-row">
     <a class="btn" href="/technical-pro/?underlying=nifty">NIFTY</a>
     <a class="btn" href="/technical-pro/?underlying=banknifty">BANKNIFTY</a>
-    <a class="btn" href="/technical-pro/trend/nifty">Trend JSON</a>
-    <a class="btn" href="/technical-pro/momentum/nifty">Momentum JSON</a>
     <a class="btn" href="/technical-pro/snapshot/nifty">Snapshot JSON</a>
+    <a class="btn" href="/technical-pro/vwap/nifty">VWAP JSON</a>
+    <a class="btn" href="/technical-pro/structure/nifty">Structure JSON</a>
   </div>
 
   {% if error %}
@@ -41,89 +40,60 @@
     </div>
 
     <div class="market-card">
-      <div class="market-symbol">Momentum Consensus</div>
-      <div class="market-price">{{ momentum.consensus.momentum_consensus }}%</div>
-      <div class="market-meta"><span>{{ momentum.consensus.aligned_timeframes }}/{{ momentum.consensus.total_timeframes }}</span><span>TFs</span></div>
+      <div class="market-symbol">VWAP / Structure</div>
+      <div class="market-price small-price">{{ vwap.consensus.overall_vwap }} / {{ structure.consensus.overall_structure }}</div>
+      <div class="market-meta"><span>{{ vwap.consensus.average_vwap_score }}</span><span>{{ structure.consensus.average_structure_score }}</span></div>
     </div>
   </section>
 
   <section class="terminal-grid">
-    <div class="glass-card console">
-      <h3>Trend Commentary</h3>
-      <p>{{ trend.commentary }}</p>
-    </div>
-
-    <div class="glass-card console">
-      <h3>Momentum Commentary</h3>
-      <p>{{ momentum.commentary }}</p>
-    </div>
+    <div class="glass-card console"><h3>VWAP Commentary</h3><p>{{ vwap.commentary }}</p></div>
+    <div class="glass-card console"><h3>Structure Commentary</h3><p>{{ structure.commentary }}</p></div>
 
     <div class="glass-card">
-      <h3>Momentum Heatmap</h3>
+      <h3>VWAP Heatmap</h3>
       <table class="terminal-table">
-        <thead>
-          <tr>
-            <th>TF</th>
-            <th>Momentum</th>
-            <th>Score</th>
-            <th>RSI</th>
-            <th>RSI Regime</th>
-            <th>MACD Regime</th>
-            <th>Histogram Slope</th>
-            <th>Divergence</th>
-          </tr>
-        </thead>
+        <thead><tr><th>TF</th><th>Bias</th><th>Score</th><th>VWAP</th><th>Distance %</th><th>Zone</th><th>Acceptance</th></tr></thead>
         <tbody>
-          {% for tf, item in momentum.timeframes.items() %}
+        {% for tf, item in vwap.timeframes.items() %}
           <tr>
             <td><b>{{ tf }}</b></td>
             {% if item.status == "ok" %}
-              <td>{{ item.momentum }}</td>
-              <td>{{ item.momentum_score }}</td>
-              <td>{{ item.rsi14 }}</td>
-              <td>{{ item.rsi_regime }}</td>
-              <td>{{ item.macd_regime }}</td>
-              <td>{{ item.histogram_slope }}</td>
-              <td>{{ item.divergence }}</td>
+              <td>{{ item.vwap_bias }}</td><td>{{ item.vwap_score }}</td><td>{{ item.vwap }}</td><td>{{ item.distance_pct }}</td><td>{{ item.zone }}</td><td>{{ item.acceptance }}</td>
             {% else %}
-              <td colspan="7">{{ item.error }}</td>
+              <td colspan="6">{{ item.error }}</td>
             {% endif %}
           </tr>
-          {% endfor %}
+        {% endfor %}
         </tbody>
       </table>
     </div>
 
     <div class="glass-card">
-      <h3>Trend Heatmap</h3>
+      <h3>Structure Heatmap</h3>
       <table class="terminal-table">
-        <thead>
-          <tr>
-            <th>TF</th>
-            <th>Trend</th>
-            <th>Score</th>
-            <th>EMA Alignment</th>
-            <th>Structure</th>
-            <th>Stage</th>
-          </tr>
-        </thead>
+        <thead><tr><th>TF</th><th>Bias</th><th>Score</th><th>BOS/CHOCH</th><th>Liquidity Sweep</th><th>Compression</th></tr></thead>
         <tbody>
-          {% for tf, item in trend.timeframes.items() %}
+        {% for tf, item in structure.timeframes.items() %}
           <tr>
             <td><b>{{ tf }}</b></td>
             {% if item.status == "ok" %}
-              <td>{{ item.trend }}</td>
-              <td>{{ item.trend_score }}</td>
-              <td>{{ item.ema_alignment }}</td>
-              <td>{{ item.structure.structure }}</td>
-              <td>{{ item.trend_stage }}</td>
+              <td>{{ item.structure_bias }}</td><td>{{ item.structure_score }}</td><td>{{ item.bos_choch.event }}</td><td>{{ item.liquidity_sweep.sweep }}</td><td>{{ item.compression_expansion.state }}</td>
             {% else %}
               <td colspan="5">{{ item.error }}</td>
             {% endif %}
           </tr>
-          {% endfor %}
+        {% endfor %}
         </tbody>
       </table>
+    </div>
+
+    <div class="glass-card console">
+      <h3>Combined Technical Commentary</h3>
+      <p>{{ snapshot.trend_commentary }}</p>
+      <p>{{ snapshot.momentum_commentary }}</p>
+      <p>{{ snapshot.vwap_commentary }}</p>
+      <p>{{ snapshot.structure_commentary }}</p>
     </div>
   </section>
 

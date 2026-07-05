@@ -24,7 +24,6 @@ def ema_slope(values, period, lookback=5):
 def rsi_series(values, period=14):
     if len(values) <= period:
         return []
-
     gains = []
     losses = []
     for i in range(1, len(values)):
@@ -41,7 +40,6 @@ def rsi_series(values, period=14):
         else:
             rs = avg_gain / avg_loss
             rsis.append(100 - (100 / (1 + rs)))
-
     return rsis
 
 def rsi(values, period=14):
@@ -53,7 +51,6 @@ def rsi(values, period=14):
 def macd_full(values, fast=12, slow=26, signal=9):
     if len(values) < slow + signal:
         return {"macd": None, "signal": None, "histogram": None, "histogram_slope": None, "histogram_acceleration": None}
-
     fast_series = ema_series(values, fast)
     slow_series = ema_series(values, slow)
     macd_line = [f - s for f, s in zip(fast_series, slow_series)]
@@ -63,7 +60,6 @@ def macd_full(values, fast=12, slow=26, signal=9):
     hist = hist_series[-1]
     prev_hist = hist_series[-2] if len(hist_series) >= 2 else hist
     prev2_hist = hist_series[-3] if len(hist_series) >= 3 else prev_hist
-
     slope = hist - prev_hist
     prev_slope = prev_hist - prev2_hist
     accel = slope - prev_slope

@@ -4,6 +4,8 @@ from technical_pro.service import (
     get_timeframe_snapshot,
     get_trend_intelligence,
     get_momentum_intelligence,
+    get_vwap_intelligence,
+    get_structure_intelligence,
     get_technical_intelligence_snapshot
 )
 
@@ -13,12 +15,14 @@ technical_pro_bp = Blueprint("technical_pro", __name__)
 def technical_pro_dashboard():
     underlying = request.args.get("underlying", "nifty")
     try:
+        snapshot = get_technical_intelligence_snapshot(underlying)
         trend = get_trend_intelligence(underlying)
         momentum = get_momentum_intelligence(underlying)
-        snapshot = get_technical_intelligence_snapshot(underlying)
-        return render_template("technical_pro_dashboard.html", trend=trend, momentum=momentum, snapshot=snapshot, error=None)
+        vwap = get_vwap_intelligence(underlying)
+        structure = get_structure_intelligence(underlying)
+        return render_template("technical_pro_dashboard.html", snapshot=snapshot, trend=trend, momentum=momentum, vwap=vwap, structure=structure, error=None)
     except Exception as e:
-        return render_template("technical_pro_dashboard.html", trend=None, momentum=None, snapshot=None, error=str(e))
+        return render_template("technical_pro_dashboard.html", snapshot=None, trend=None, momentum=None, vwap=None, structure=None, error=str(e))
 
 @technical_pro_bp.route("/trend/<underlying>")
 def trend_json(underlying):
@@ -31,6 +35,20 @@ def trend_json(underlying):
 def momentum_json(underlying):
     try:
         return jsonify(get_momentum_intelligence(underlying))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@technical_pro_bp.route("/vwap/<underlying>")
+def vwap_json(underlying):
+    try:
+        return jsonify(get_vwap_intelligence(underlying))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@technical_pro_bp.route("/structure/<underlying>")
+def structure_json(underlying):
+    try:
+        return jsonify(get_structure_intelligence(underlying))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

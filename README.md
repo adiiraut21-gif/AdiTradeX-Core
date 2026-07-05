@@ -1,38 +1,42 @@
-# AdiTradeX Milestone 6.1A-3 - Momentum Intelligence Engine
+# AdiTradeX Milestone 6.1A-4 - VWAP + Structure Intelligence Engine
 
-This is the third internal build of Milestone 6.1A.
+This is the fourth internal build of Milestone 6.1A.
 
 ## Adds
 
-- Momentum Engine Pro
-- RSI regime detection
-- RSI slope detection
-- MACD full engine
-- MACD histogram slope
-- MACD histogram acceleration
-- RSI divergence detection
-- Momentum score
-- Momentum consensus
-- Momentum commentary
-- Combined technical snapshot:
-  - Trend score
-  - Momentum score
+- VWAP Engine Pro
+- VWAP distance
+- VWAP slope
+- Premium / discount zone
+- VWAP acceptance / rejection
+- Market Structure Engine Pro
+- Swing high / swing low detection
+- Break of Structure
+- Liquidity sweep detection
+- Compression / expansion state
+- Structure score
+- VWAP consensus
+- Structure consensus
+- Combined Technical Snapshot:
+  - Trend
+  - Momentum
+  - VWAP
+  - Structure
   - Technical score
   - Technical bias
 
 ## URLs
 
 - `/technical-pro/`
-- `/technical-pro/momentum/nifty`
-- `/technical-pro/momentum/banknifty`
-- `/technical-pro/trend/nifty`
+- `/technical-pro/vwap/nifty`
+- `/technical-pro/structure/nifty`
 - `/technical-pro/snapshot/nifty`
-- `/technical-pro/data/nifty`
+- `/technical-pro/trend/nifty`
+- `/technical-pro/momentum/nifty`
 
 ## Important
 
-This improves Technical Pro only. It does not yet modify Strategy Engine scoring.
-6.1A-4 will add VWAP + Structure Pro.
+This improves Technical Pro only. Strategy Engine scoring remains unchanged until 6.1B.
 
 ## Safety
 
