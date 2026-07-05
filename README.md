@@ -1,43 +1,37 @@
-# AdiTradeX Milestone 6.1A-4 - VWAP + Structure Intelligence Engine
+# AdiTradeX 6.1A-5 Institutional VWAP Futures Update
 
-This is the fourth internal build of Milestone 6.1A.
+## Why
 
-## Adds
+NIFTY, BANKNIFTY and FINNIFTY are indices and do not have real traded volume.
+So true VWAP cannot be calculated from spot index candles.
 
-- VWAP Engine Pro
-- VWAP distance
-- VWAP slope
-- Premium / discount zone
-- VWAP acceptance / rejection
-- Market Structure Engine Pro
-- Swing high / swing low detection
-- Break of Structure
-- Liquidity sweep detection
-- Compression / expansion state
-- Structure score
-- VWAP consensus
-- Structure consensus
-- Combined Technical Snapshot:
-  - Trend
-  - Momentum
-  - VWAP
-  - Structure
-  - Technical score
-  - Technical bias
+## Fix
 
-## URLs
+VWAP is now calculated using current-month futures volume:
 
-- `/technical-pro/`
-- `/technical-pro/vwap/nifty`
-- `/technical-pro/structure/nifty`
-- `/technical-pro/snapshot/nifty`
-- `/technical-pro/trend/nifty`
-- `/technical-pro/momentum/nifty`
+- NIFTY -> NIFTY current month futures
+- BANKNIFTY -> BANKNIFTY current month futures
+- FINNIFTY -> FINNIFTY current month futures
+- MIDCPNIFTY -> MIDCPNIFTY current month futures
 
-## Important
+## Files
 
-This improves Technical Pro only. Strategy Engine scoring remains unchanged until 6.1B.
+Upload/replace:
 
-## Safety
+- technical_pro/futures_resolver.py
+- technical_pro/vwap_engine.py
+- technical_pro/service.py
 
-Read-only mode. No orders are placed.
+## Then
+
+Render -> Manual Deploy -> Clear build cache & deploy
+
+## Test
+
+- /technical-pro/
+- /technical-pro/vwap/nifty
+- /technical-pro/snapshot/nifty
+
+## Notes
+
+If futures contract resolution fails, check that Kite access token is active and NFO instruments are accessible.
