@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% set heading = "Strategy Decision Engine" %}
+{% block content %}
+
+<div class="glass-card">
+  <h2>AlphaStrike V5.0 Strategy Optimizer</h2>
+  <p>Combines option-chain analytics + quant technical engine to compare directional trades, spreads, and no-trade.</p>
+
+  <div class="cta-row">
+    <a class="btn" href="/strategy/?underlying=nifty&interval=15m">NIFTY 15m</a>
+    <a class="btn" href="/strategy/?underlying=nifty&interval=5m">NIFTY 5m</a>
+    <a class="btn" href="/strategy/?underlying=banknifty&interval=15m">BANKNIFTY</a>
+    <a class="btn" href="/analytics/">Analytics</a>
+    <a class="btn" href="/technical/">Technical</a>
+  </div>
+
+  {% if error %}
+    <div class="alert red">{{ error }}</div>
+  {% else %}
+
+  <section class="metric-grid">
+    <div class="market-card">
+      <div class="market-symbol">{{ data.underlying }} Spot</div>
+      <div class="market-price">{{ data.spot }}</div>
+      <div class="market-meta"><span>ATM</span><span>{{ data.atm }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Recommended</div>
+      <div class="market-price small-price">{{ data.recommended_strategy.name }}</div>
+      <div class="market-meta"><span>Score</span><span>{{ data.recommended_strategy.score }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">EV / Confidence</div>
+      <div class="market-price small-price">{{ data.recommended_strategy.ev_score }} / {{ data.recommended_strategy.confidence }}%</div>
+      <div class="market-meta"><span>Risk</span><span>{{ data.recommended_strategy.risk_rating }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Institutional Grade</div>
+      <div class="market-price">{{ data.institutional_grade }}</div>
+      <div class="market-meta"><span>Interval</span><span>{{ data.interval }}</span></div>
+    </div>
+  </section>
+
+  <section class="terminal-grid">
+    <div class="glass-card">
+      <h3>Final Verdict</h3>
+      <p>{{ data.final_verdict }}</p>
+      <hr>
+      <p>{{ data.recommended_strategy.reason }}</p>
+    </div>
+
+    <div class="glass-card">
+      <h3>Market Context</h3>
+      <div class="data-row"><span>Institutional Bias</span><b>{{ data.institutional_bias }}</b></div>
+      <div class="data-row"><span>Technical Bias</span><b>{{ data.technical_bias }}</b></div>
+      <div class="data-row"><span>Trade Quality</span><b>{{ data.trade_quality }}</b></div>
+      <div class="data-row"><span>Technical Score</span><b>{{ data.technical_score }}</b></div>
+      <div class="data-row"><span>PCR</span><b>{{ data.pcr }}</b></div>
+      <div class="data-row"><span>Max Pain</span><b>{{ data.max_pain }}</b></div>
+      <div class="data-row"><span>Support</span><b>{{ data.support }}</b></div>
+      <div class="data-row"><span>Resistance</span><b>{{ data.resistance }}</b></div>
+    </div>
+
+    <div class="glass-card console">
+      <h3>Strategy Ranking</h3>
+      <table class="terminal-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Strategy</th>
+            <th>Type</th>
+            <th>Score</th>
+            <th>EV</th>
+            <th>Confidence</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for s in data.strategies %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><b>{{ s.name }}</b></td>
+            <td>{{ s.type }}</td>
+            <td>{{ s.score }}</td>
+            <td>{{ s.ev_score }}</td>
+            <td>{{ s.confidence }}%</td>
+            <td>{{ s.risk_rating }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass-card">
+      <h3>Recommended Trade Structure</h3>
+      {% set s = data.recommended_strategy %}
+
+      {% if s.name == "No Trade" %}
+        <p>No trade structure. Wait for a better setup.</p>
+      {% else %}
+        {% if s.buy_leg %}<div class="data-row"><span>Buy Leg</span><b>{{ s.buy_leg }}</b></div>{% endif %}
+        {% if s.sell_leg %}<div class="data-row"><span>Sell Leg</span><b>{{ s.sell_leg }}</b></div>{% endif %}
+        {% if s.net_debit %}<div class="data-row"><span>Net Debit</span><b>{{ s.net_debit }}</b></div>{% endif %}
+        {% if s.net_credit %}<div class="data-row"><span>Net Credit</span><b>{{ s.net_credit }}</b></div>{% endif %}
+        {% if s.premium %}<div class="data-row"><span>Premium</span><b>{{ s.premium }}</b></div>{% endif %}
+        {% if s.max_profit %}<div class="data-row"><span>Max Profit</span><b>{{ s.max_profit }}</b></div>{% endif %}
+        {% if s.max_loss %}<div class="data-row"><span>Max Loss</span><b>{{ s.max_loss }}</b></div>{% endif %}
+        {% if s.breakeven %}<div class="data-row"><span>Breakeven</span><b>{{ s.breakeven }}</b></div>{% endif %}
+      {% endif %}
+    </div>
+
+    <div class="glass-card">
+      <h3>Analytics Summary</h3>
+      <p>{{ data.analytics_summary }}</p>
+    </div>
+
+    <div class="glass-card">
+      <h3>Technical Summary</h3>
+      <p>{{ data.technical_summary }}</p>
+    </div>
+  </section>
+
+  {% endif %}
+</div>
+
+{% endblock %}

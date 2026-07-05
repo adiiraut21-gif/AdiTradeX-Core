@@ -1,45 +1,36 @@
-# AdiTradeX Milestone 5 - Quant Technical Engine
+# AdiTradeX Milestone 6 - Strategy Decision Engine
 
-This release adds the AlphaStrike V5.0 Quant Technical Engine.
+This is an incremental update on top of Milestone 5.
 
 ## Adds
 
-- Historical candle fetch from Kite Connect
-- Multi-timeframe support
-- EMA 9 / 20 / 50 / 200
-- RSI
-- MACD
-- ATR
-- Bollinger Bands
-- VWAP approximation
-- Market structure detection
-- Trend score
-- Momentum score
-- Volatility score
-- Technical score
-- Technical bias
-- AI technical summary
-- Technical dashboard
-- JSON API
+- Strategy Lab activated
+- Directional vs spread comparison
+- Long Call
+- Long Put
+- Bull Call Spread
+- Bear Put Spread
+- Bull Put Credit Spread
+- Bear Call Credit Spread
+- No Trade
+- EV-style scoring
+- Confidence score
+- Risk rating
+- Institutional grade verdict
+- Recommended trade structure
+- Combines:
+  - Institutional analytics
+  - Quant technical engine
+  - Option-chain data
 
 ## URLs
 
-- `/technical/`
-- `/technical/?underlying=nifty&interval=15m`
-- `/technical/?underlying=nifty&interval=5m`
-- `/technical/?underlying=banknifty&interval=15m`
-- `/technical/json/nifty?interval=15m`
-
-## Supported intervals
-
-- `1m`
-- `3m`
-- `5m`
-- `15m`
-- `30m`
-- `60m`
-- `day`
+- `/strategy/`
+- `/strategy/?underlying=nifty&interval=15m`
+- `/strategy/?underlying=nifty&interval=5m`
+- `/strategy/?underlying=banknifty&interval=15m`
+- `/strategy/json/nifty?interval=15m`
 
 ## Safety
 
-Read-only mode. No orders are placed.
+Read-only mode. No orders are placed, modified, or cancelled.

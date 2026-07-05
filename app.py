@@ -8,6 +8,7 @@ from market.routes import market_bp
 from options.routes import options_bp
 from analytics.routes import analytics_bp
 from technical.routes import technical_bp
+from strategy.routes import strategy_bp
 
 logger = setup_logger()
 
@@ -23,17 +24,26 @@ def create_app():
     app.register_blueprint(options_bp, url_prefix="/options")
     app.register_blueprint(analytics_bp, url_prefix="/analytics")
     app.register_blueprint(technical_bp, url_prefix="/technical")
+    app.register_blueprint(strategy_bp, url_prefix="/strategy")
 
     @app.route("/health")
     def health():
         return {
             "app": "AdiTradeX Core",
-            "version": "5.0-Quant-Technical-Engine",
+            "version": "6.0-Strategy-Decision-Engine",
             "status": "ok",
-            "modules": ["auth", "market", "option_chain", "analytics", "technical"]
+            "modules": [
+                "auth",
+                "dashboard",
+                "market",
+                "option_chain",
+                "analytics",
+                "technical",
+                "strategy"
+            ]
         }
 
-    logger.info("AdiTradeX Core v5.0 Quant Technical Engine started")
+    logger.info("AdiTradeX Core v6.0 Strategy Decision Engine started")
     return app
 
 app = create_app()
