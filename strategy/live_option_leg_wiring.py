@@ -1,3 +1,5 @@
+from strategy.dynamic_spread_optimizer import optimize_debit_spread, optimize_credit_spread
+
 def _num(x, default=0):
     try:
         if x is None:
@@ -15,25 +17,14 @@ def _get(row, *keys, default=None):
 
 
 def _normalise_chain_row(row):
-    strike = _num(_get(row, "strike", "strike_price", "strikePrice"))
-
-    ce_ltp = _num(_get(row, "ce_ltp", "CE_LTP", "call_ltp", "callLTP"))
-    pe_ltp = _num(_get(row, "pe_ltp", "PE_LTP", "put_ltp", "putLTP"))
-
-    ce_oi = _num(_get(row, "ce_oi", "CE_OI", "call_oi", "callOI"))
-    pe_oi = _num(_get(row, "pe_oi", "PE_OI", "put_oi", "putOI"))
-
-    ce_volume = _num(_get(row, "ce_volume", "CE_VOLUME", "call_volume", "callVolume"))
-    pe_volume = _num(_get(row, "pe_volume", "PE_VOLUME", "put_volume", "putVolume"))
-
     return {
-        "strike": strike,
-        "ce_ltp": ce_ltp,
-        "pe_ltp": pe_ltp,
-        "ce_oi": ce_oi,
-        "pe_oi": pe_oi,
-        "ce_volume": ce_volume,
-        "pe_volume": pe_volume,
+        "strike": _num(_get(row, "strike", "strike_price", "strikePrice")),
+        "ce_ltp": _num(_get(row, "ce_ltp", "CE_LTP", "call_ltp", "callLTP")),
+        "pe_ltp": _num(_get(row, "pe_ltp", "PE_LTP", "put_ltp", "putLTP")),
+        "ce_oi": _num(_get(row, "ce_oi", "CE_OI", "call_oi", "callOI")),
+        "pe_oi": _num(_get(row, "pe_oi", "PE_OI", "put_oi", "putOI")),
+        "ce_volume": _num(_get(row, "ce_volume", "CE_VOLUME", "call_volume", "callVolume")),
+        "pe_volume": _num(_get(row, "pe_volume", "PE_VOLUME", "put_volume", "putVolume")),
         "raw": row
     }
 
@@ -54,9 +45,7 @@ def _nearest_strike(rows, target):
 def _step(rows, default=50):
     strikes = sorted({r["strike"] for r in rows})
     diffs = [strikes[i + 1] - strikes[i] for i in range(len(strikes) - 1) if strikes[i + 1] - strikes[i] > 0]
-    if not diffs:
-        return default
-    return int(min(diffs))
+    return int(min(diffs)) if diffs else default
 
 
 def _leg(row, action, opt_type):
@@ -64,13 +53,9 @@ def _leg(row, action, opt_type):
         return None
 
     if opt_type == "CE":
-        premium = row["ce_ltp"]
-        oi = row["ce_oi"]
-        volume = row["ce_volume"]
+        premium, oi, volume = row["ce_ltp"], row["ce_oi"], row["ce_volume"]
     else:
-        premium = row["pe_ltp"]
-        oi = row["pe_oi"]
-        volume = row["pe_volume"]
+        premium, oi, volume = row["pe_ltp"], row["pe_oi"], row["pe_volume"]
 
     return {
         "action": action,
@@ -87,60 +72,18 @@ def _expiry(analytics):
     return analytics.get("expiry") or analytics.get("nearest_expiry") or analytics.get("selected_expiry") or "Current Weekly"
 
 
-def _calc_debit_spread(buy_leg, sell_leg):
-    debit = round(buy_leg["premium"] - sell_leg["premium"], 2)
-    width = abs(sell_leg["strike"] - buy_leg["strike"])
-    max_profit = round(width - debit, 2)
-    max_loss = max(debit, 0)
-    if buy_leg["type"] == "CE":
-        breakeven = round(buy_leg["strike"] + debit, 2)
-    else:
-        breakeven = round(buy_leg["strike"] - debit, 2)
-
-    return {
-        "net_debit": debit,
-        "net_credit": 0,
-        "max_profit": max_profit,
-        "max_loss": max_loss,
-        "breakeven": breakeven,
-        "risk_reward": round(max_profit / max_loss, 2) if max_loss else None
-    }
-
-
-def _calc_credit_spread(sell_leg, buy_leg):
-    credit = round(sell_leg["premium"] - buy_leg["premium"], 2)
-    width = abs(sell_leg["strike"] - buy_leg["strike"])
-    max_profit = max(credit, 0)
-    max_loss = round(width - credit, 2)
-    if sell_leg["type"] == "PE":
-        breakeven = round(sell_leg["strike"] - credit, 2)
-    else:
-        breakeven = round(sell_leg["strike"] + credit, 2)
-
-    return {
-        "net_debit": 0,
-        "net_credit": credit,
-        "max_profit": max_profit,
-        "max_loss": max_loss,
-        "breakeven": breakeven,
-        "risk_reward": round(max_profit / max_loss, 2) if max_loss else None
-    }
-
-
 def _calc_long(leg):
     premium = leg["premium"]
-    if leg["type"] == "CE":
-        breakeven = round(leg["strike"] + premium, 2)
-    else:
-        breakeven = round(leg["strike"] - premium, 2)
-
+    breakeven = round(leg["strike"] + premium, 2) if leg["type"] == "CE" else round(leg["strike"] - premium, 2)
     return {
         "net_debit": premium,
         "net_credit": 0,
         "max_profit": "Open",
         "max_loss": premium,
         "breakeven": breakeven,
-        "risk_reward": "Open"
+        "risk_reward": "Open",
+        "score": 50,
+        "reason": "Single-leg directional trade."
     }
 
 
@@ -149,12 +92,7 @@ def build_live_option_legs(strategy_name, analytics):
     rows, by_strike = _chain_map(chain)
 
     if not rows:
-        return {
-            "status": "error",
-            "reason": "Live option chain is not available.",
-            "strategy": strategy_name,
-            "legs": []
-        }
+        return {"status": "error", "reason": "Live option chain is not available.", "strategy": strategy_name, "legs": []}
 
     spot = _num(analytics.get("spot") or analytics.get("underlying_value"))
     atm = analytics.get("atm") or _nearest_strike(rows, spot)
@@ -162,18 +100,13 @@ def build_live_option_legs(strategy_name, analytics):
     step = _step(rows)
 
     if not atm:
-        return {
-            "status": "error",
-            "reason": "ATM strike could not be resolved from option chain.",
-            "strategy": strategy_name,
-            "legs": []
-        }
+        return {"status": "error", "reason": "ATM strike could not be resolved from option chain.", "strategy": strategy_name, "legs": []}
 
     expiry = _expiry(analytics)
     name = (strategy_name or "").lower()
-
     legs = []
     calc = {}
+    optimizer = None
 
     if "long call" in name:
         buy = _leg(by_strike.get(atm), "BUY", "CE")
@@ -186,78 +119,30 @@ def build_live_option_legs(strategy_name, analytics):
         calc = _calc_long(buy)
 
     elif "bull call" in name:
-        buy_strike = atm
-        sell_strike = _nearest_strike(rows, atm + step)
-        buy = _leg(by_strike.get(buy_strike), "BUY", "CE")
-        sell = _leg(by_strike.get(sell_strike), "SELL", "CE")
-        legs = [buy, sell]
-        calc = _calc_debit_spread(buy, sell)
+        optimizer = optimize_debit_spread(rows, by_strike, atm, step, spot, "CE", "bull")
+        if optimizer:
+            legs, calc = optimizer["legs"], optimizer["calculation"]
 
     elif "bear put" in name:
-        buy_strike = atm
-        sell_strike = _nearest_strike(rows, atm - step)
-        buy = _leg(by_strike.get(buy_strike), "BUY", "PE")
-        sell = _leg(by_strike.get(sell_strike), "SELL", "PE")
-        legs = [buy, sell]
-        calc = _calc_debit_spread(buy, sell)
+        optimizer = optimize_debit_spread(rows, by_strike, atm, step, spot, "PE", "bear")
+        if optimizer:
+            legs, calc = optimizer["legs"], optimizer["calculation"]
 
     elif "bull put" in name:
-        sell_strike = _nearest_strike(rows, atm - step)
-        buy_strike = _nearest_strike(rows, atm - (2 * step))
-        sell = _leg(by_strike.get(sell_strike), "SELL", "PE")
-        buy = _leg(by_strike.get(buy_strike), "BUY", "PE")
-        legs = [sell, buy]
-        calc = _calc_credit_spread(sell, buy)
+        optimizer = optimize_credit_spread(rows, by_strike, atm, step, spot, "PE", "bull")
+        if optimizer:
+            legs, calc = optimizer["legs"], optimizer["calculation"]
 
     elif "bear call" in name:
-        sell_strike = _nearest_strike(rows, atm + step)
-        buy_strike = _nearest_strike(rows, atm + (2 * step))
-        sell = _leg(by_strike.get(sell_strike), "SELL", "CE")
-        buy = _leg(by_strike.get(buy_strike), "BUY", "CE")
-        legs = [sell, buy]
-        calc = _calc_credit_spread(sell, buy)
-
-    elif "iron condor" in name:
-        sell_pe_strike = _nearest_strike(rows, atm - step)
-        buy_pe_strike = _nearest_strike(rows, atm - (2 * step))
-        sell_ce_strike = _nearest_strike(rows, atm + step)
-        buy_ce_strike = _nearest_strike(rows, atm + (2 * step))
-
-        sell_pe = _leg(by_strike.get(sell_pe_strike), "SELL", "PE")
-        buy_pe = _leg(by_strike.get(buy_pe_strike), "BUY", "PE")
-        sell_ce = _leg(by_strike.get(sell_ce_strike), "SELL", "CE")
-        buy_ce = _leg(by_strike.get(buy_ce_strike), "BUY", "CE")
-
-        legs = [sell_pe, buy_pe, sell_ce, buy_ce]
-        credit = round(sell_pe["premium"] + sell_ce["premium"] - buy_pe["premium"] - buy_ce["premium"], 2)
-        width = step
-        calc = {
-            "net_credit": credit,
-            "net_debit": 0,
-            "max_profit": credit,
-            "max_loss": round(width - credit, 2),
-            "breakeven_lower": round(sell_pe["strike"] - credit, 2),
-            "breakeven_upper": round(sell_ce["strike"] + credit, 2),
-            "risk_reward": round(credit / (width - credit), 2) if width - credit else None
-        }
+        optimizer = optimize_credit_spread(rows, by_strike, atm, step, spot, "CE", "bear")
+        if optimizer:
+            legs, calc = optimizer["legs"], optimizer["calculation"]
 
     else:
-        return {
-            "status": "no_trade",
-            "reason": "No option legs required for No Trade or unsupported strategy.",
-            "strategy": strategy_name,
-            "expiry": expiry,
-            "legs": []
-        }
+        return {"status": "no_trade", "reason": "No option legs required for No Trade or unsupported strategy.", "strategy": strategy_name, "expiry": expiry, "legs": []}
 
-    if any(l is None for l in legs):
-        return {
-            "status": "error",
-            "reason": "One or more option legs could not be built from live chain.",
-            "strategy": strategy_name,
-            "expiry": expiry,
-            "legs": []
-        }
+    if not legs or any(l is None for l in legs):
+        return {"status": "error", "reason": "One or more option legs could not be built from live chain.", "strategy": strategy_name, "expiry": expiry, "legs": []}
 
     return {
         "status": "ok",
@@ -266,5 +151,10 @@ def build_live_option_legs(strategy_name, analytics):
         "atm": int(atm),
         "step": step,
         "legs": legs,
-        "calculation": calc
+        "calculation": calc,
+        "optimizer": {
+            "enabled": optimizer is not None,
+            "candidate_count": optimizer.get("candidate_count") if optimizer else 1,
+            "all_candidates": optimizer.get("all_candidates") if optimizer else []
+        }
     }
