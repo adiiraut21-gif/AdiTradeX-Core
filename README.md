@@ -1,12 +1,9 @@
-Milestone 6.1C-2
+Milestone 6.1C-3
 
-Add new files to strategy/:
-- expiry_selector.py
-- strike_selector.py
-- greeks_optimizer.py
-- leg_builder.py
-- trade_calculator.py
-- strategy_optimizer.py
+Add:
+- strategy_rejection_engine.py
+- strategy_ranking_engine.py
+- best_strategy_selector.py
 
 No app.py changes.
-This milestone introduces expiry, strike, leg and trade selection framework.
+Implements institutional rejection and ranking logic.
