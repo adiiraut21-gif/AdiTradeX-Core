@@ -1,8 +1,10 @@
-Milestone 6.1C-4
+Milestone 6.1C-5
 
 Add:
-- strategy/final_strategy_selector.py
-- strategy/execution_summary.py
+- strategy/strategy_lab_service.py
+- templates/strategy_lab_panel.html
 
+Integrate the service into your existing Strategy Lab view/template.
 No app.py changes.
-This milestone consolidates ranked strategies into one final institutional decision.
+
+This completes Milestone 6.1C.

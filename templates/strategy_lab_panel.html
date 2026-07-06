@@ -1,0 +1,19 @@
+
+<div class="glass-card">
+  <h2>Institutional Strategy Decision</h2>
+  <p><b>Status:</b> {{ data.status }}</p>
+  <p><b>Headline:</b> {{ data.summary.headline }}</p>
+  {% if data.final.recommended_strategy %}
+    <table>
+      <tr><td>Strategy</td><td>{{ data.final.execution.strategy }}</td></tr>
+      <tr><td>Expiry</td><td>{{ data.final.execution.expiry }}</td></tr>
+      <tr><td>Buy Leg</td><td>{{ data.final.execution.buy_leg }}</td></tr>
+      <tr><td>Sell Leg</td><td>{{ data.final.execution.sell_leg }}</td></tr>
+      <tr><td>Confidence</td><td>{{ data.final.execution.confidence }}</td></tr>
+      <tr><td>EV</td><td>{{ data.final.execution.ev_score }}</td></tr>
+      <tr><td>POP</td><td>{{ data.final.execution.pop }}</td></tr>
+    </table>
+  {% else %}
+    <p>No institutional-grade trade available.</p>
+  {% endif %}
+</div>
