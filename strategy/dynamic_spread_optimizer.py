@@ -43,7 +43,7 @@ def _score_debit_spread(buy_leg, sell_leg, spot, direction):
     debit_score = max(0, 100 - (debit / width) * 100)
     safety_score = max(0, 100 - abs(breakeven - spot) / spot * 1000) if spot else 50
 
-    final_score = round(rr_score * 0.35 + debit_score * 0.25 + liq * 0.25 + safety_score * 0.15, 2)
+    final_score = round(rr_score * 0.32 + debit_score * 0.24 + liq * 0.24 + safety_score * 0.20, 2)
 
     return {
         "score": final_score,
@@ -55,7 +55,7 @@ def _score_debit_spread(buy_leg, sell_leg, spot, direction):
         "breakeven": breakeven,
         "risk_reward": rr,
         "liquidity_score": liq,
-        "reason": "Dynamic optimizer selected best debit spread using RR, debit quality, liquidity and breakeven safety."
+        "reason": "Dynamic strike + spread optimizer selected best debit spread."
     }
 
 
@@ -82,7 +82,7 @@ def _score_credit_spread(sell_leg, buy_leg, spot, direction):
     else:
         safety_score = 50
 
-    final_score = round(credit_score * 0.35 + rr_score * 0.20 + liq * 0.25 + safety_score * 0.20, 2)
+    final_score = round(credit_score * 0.34 + rr_score * 0.18 + liq * 0.24 + safety_score * 0.24, 2)
 
     return {
         "score": final_score,
@@ -94,7 +94,7 @@ def _score_credit_spread(sell_leg, buy_leg, spot, direction):
         "breakeven": breakeven,
         "risk_reward": rr,
         "liquidity_score": liq,
-        "reason": "Dynamic optimizer selected best credit spread using credit quality, safety, liquidity and risk."
+        "reason": "Dynamic strike + spread optimizer selected best credit spread."
     }
 
 
@@ -104,53 +104,84 @@ def _best(candidates):
     ranked = sorted(candidates, key=lambda x: x["calculation"]["score"], reverse=True)
     best = ranked[0]
     best["candidate_count"] = len(ranked)
-    best["all_candidates"] = ranked[:10]
+    best["all_candidates"] = ranked[:15]
     return best
+
+
+def _nearest(rows, target):
+    if not rows:
+        return None
+    return min(rows, key=lambda x: abs(x["strike"] - target))["strike"]
+
+
+def _candidate_buy_strikes(rows, atm, step, direction, spread_type):
+    raw = []
+
+    if spread_type == "debit":
+        if direction == "bull":
+            raw = [atm - step, atm, atm + step]
+        else:
+            raw = [atm + step, atm, atm - step]
+    else:
+        if direction == "bull":
+            raw = [atm - step, atm - (2 * step), atm - (3 * step)]
+        else:
+            raw = [atm + step, atm + (2 * step), atm + (3 * step)]
+
+    strikes = sorted({r["strike"] for r in rows})
+    valid = []
+    for s in raw:
+        nearest = _nearest(rows, s)
+        if nearest in strikes and nearest not in valid:
+            valid.append(nearest)
+    return valid
 
 
 def optimize_debit_spread(rows, by_strike, atm, step, spot, opt_type, direction, max_width_steps=4):
     candidates = []
-    for i in range(1, max_width_steps + 1):
-        buy_strike = atm
-        sell_strike = atm + (step * i) if direction == "bull" else atm - (step * i)
+    buy_strikes = _candidate_buy_strikes(rows, atm, step, direction, "debit")
 
-        buy_row = by_strike.get(buy_strike)
-        sell_row = by_strike.get(sell_strike)
+    for buy_strike in buy_strikes:
+        for i in range(1, max_width_steps + 1):
+            sell_strike = buy_strike + (step * i) if direction == "bull" else buy_strike - (step * i)
 
-        if not buy_row or not sell_row:
-            continue
+            buy_row = by_strike.get(buy_strike)
+            sell_row = by_strike.get(sell_strike)
 
-        buy_leg = _make_leg(buy_row, "BUY", opt_type)
-        sell_leg = _make_leg(sell_row, "SELL", opt_type)
-        calc = _score_debit_spread(buy_leg, sell_leg, spot, direction)
+            if not buy_row or not sell_row:
+                continue
 
-        if calc:
-            candidates.append({"legs": [buy_leg, sell_leg], "calculation": calc})
+            buy_leg = _make_leg(buy_row, "BUY", opt_type)
+            sell_leg = _make_leg(sell_row, "SELL", opt_type)
+            calc = _score_debit_spread(buy_leg, sell_leg, spot, direction)
+
+            if calc:
+                calc["buy_strike_origin"] = int(buy_strike)
+                candidates.append({"legs": [buy_leg, sell_leg], "calculation": calc})
 
     return _best(candidates)
 
 
 def optimize_credit_spread(rows, by_strike, atm, step, spot, opt_type, direction, max_width_steps=4):
     candidates = []
-    for i in range(1, max_width_steps + 1):
-        if direction == "bull":
-            sell_strike = atm - step
-            buy_strike = sell_strike - (step * i)
-        else:
-            sell_strike = atm + step
-            buy_strike = sell_strike + (step * i)
+    sell_strikes = _candidate_buy_strikes(rows, atm, step, direction, "credit")
 
-        sell_row = by_strike.get(sell_strike)
-        buy_row = by_strike.get(buy_strike)
+    for sell_strike in sell_strikes:
+        for i in range(1, max_width_steps + 1):
+            buy_strike = sell_strike - (step * i) if direction == "bull" else sell_strike + (step * i)
 
-        if not sell_row or not buy_row:
-            continue
+            sell_row = by_strike.get(sell_strike)
+            buy_row = by_strike.get(buy_strike)
 
-        sell_leg = _make_leg(sell_row, "SELL", opt_type)
-        buy_leg = _make_leg(buy_row, "BUY", opt_type)
-        calc = _score_credit_spread(sell_leg, buy_leg, spot, direction)
+            if not sell_row or not buy_row:
+                continue
 
-        if calc:
-            candidates.append({"legs": [sell_leg, buy_leg], "calculation": calc})
+            sell_leg = _make_leg(sell_row, "SELL", opt_type)
+            buy_leg = _make_leg(buy_row, "BUY", opt_type)
+            calc = _score_credit_spread(sell_leg, buy_leg, spot, direction)
+
+            if calc:
+                calc["sell_strike_origin"] = int(sell_strike)
+                candidates.append({"legs": [sell_leg, buy_leg], "calculation": calc})
 
     return _best(candidates)
