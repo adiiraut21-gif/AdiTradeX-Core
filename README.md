@@ -1,9 +1,8 @@
-Milestone 6.1C-3
+Milestone 6.1C-4
 
 Add:
-- strategy_rejection_engine.py
-- strategy_ranking_engine.py
-- best_strategy_selector.py
+- strategy/final_strategy_selector.py
+- strategy/execution_summary.py
 
 No app.py changes.
-Implements institutional rejection and ranking logic.
+This milestone consolidates ranked strategies into one final institutional decision.
