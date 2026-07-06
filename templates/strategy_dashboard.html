@@ -4,7 +4,7 @@
 
 <div class="glass-card">
   <h2>AlphaStrike V5.0 Strategy Optimizer</h2>
-  <p>Strategy Lab now includes Institutional Scoring Engine 6.1B.</p>
+  <p>Top 3 ranked strategies now receive live option legs.</p>
 
   <div class="cta-row">
     <a class="btn" href="/strategy/?underlying=nifty&interval=15m">NIFTY 15m</a>
@@ -17,6 +17,7 @@
     <div class="alert red">{{ error }}</div>
   {% else %}
   {% set inst = data.institutional_scoring %}
+  {% set s = data.recommended_strategy %}
 
   <section class="metric-grid">
     <div class="market-card">
@@ -26,21 +27,21 @@
     </div>
 
     <div class="market-card">
+      <div class="market-symbol">Best Available</div>
+      <div class="market-price small-price">{{ data.best_available_strategy.name }}</div>
+      <div class="market-meta"><span>Score</span><span>{{ data.best_available_strategy.score }}</span></div>
+    </div>
+
+    <div class="market-card">
+      <div class="market-symbol">Execution Status</div>
+      <div class="market-price small-price">{{ data.execution_status }}</div>
+      <div class="market-meta"><span>{{ inst.capital_preservation.action }}</span></div>
+    </div>
+
+    <div class="market-card">
       <div class="market-symbol">Institutional Score</div>
       <div class="market-price">{{ inst.institutional_score }}</div>
       <div class="market-meta"><span>Grade</span><span>{{ inst.institutional_grade }}</span></div>
-    </div>
-
-    <div class="market-card">
-      <div class="market-symbol">EV / Confidence</div>
-      <div class="market-price small-price">{{ inst.expected_value.ev_score }} / {{ inst.engine_confidence }}%</div>
-      <div class="market-meta"><span>{{ inst.expected_value.ev_label }}</span></div>
-    </div>
-
-    <div class="market-card">
-      <div class="market-symbol">Capital Filter</div>
-      <div class="market-price small-price">{{ inst.capital_preservation.action }}</div>
-      <div class="market-meta"><span>{{ inst.strategy_readiness.strategy_ready }}</span></div>
     </div>
   </section>
 
@@ -48,7 +49,47 @@
     <div class="glass-card">
       <h3>Final Verdict</h3>
       <p>{{ data.final_verdict }}</p>
-      <p>{{ data.recommended_strategy.reason }}</p>
+      <p><b>Execution Reason:</b> {{ data.execution_reason }}</p>
+    </div>
+
+    <div class="glass-card console">
+      <h3>Top 3 Strategy Option Legs</h3>
+
+      {% for st in data.top_strategies_with_legs[:3] %}
+        <div class="glass-card">
+          <h4>#{{ st.rank }} — {{ st.name }}</h4>
+          <div class="data-row"><span>Score</span><b>{{ st.score }}</b></div>
+          <div class="data-row"><span>EV</span><b>{{ st.ev_score }}</b></div>
+          <div class="data-row"><span>Risk</span><b>{{ st.risk_rating }}</b></div>
+          <div class="data-row"><span>Leg Status</span><b>{{ st.leg_status }}</b></div>
+
+          {% if st.live_option_trade and st.live_option_trade.status == "ok" %}
+            <div class="data-row"><span>Expiry</span><b>{{ st.live_option_trade.expiry }}</b></div>
+            <h5>Legs</h5>
+            {% for leg in st.live_option_trade.legs %}
+              <div class="data-row">
+                <span>{{ leg.action }}</span>
+                <b>{{ leg.strike }} {{ leg.type }} @ {{ leg.premium }}</b>
+              </div>
+            {% endfor %}
+
+            <h5>Calculation</h5>
+            {% if st.live_option_trade.calculation.net_debit %}
+              <div class="data-row"><span>Net Debit</span><b>{{ st.live_option_trade.calculation.net_debit }}</b></div>
+            {% endif %}
+            {% if st.live_option_trade.calculation.net_credit %}
+              <div class="data-row"><span>Net Credit</span><b>{{ st.live_option_trade.calculation.net_credit }}</b></div>
+            {% endif %}
+            <div class="data-row"><span>Max Profit</span><b>{{ st.live_option_trade.calculation.max_profit }}</b></div>
+            <div class="data-row"><span>Max Loss</span><b>{{ st.live_option_trade.calculation.max_loss }}</b></div>
+            {% if st.live_option_trade.calculation.breakeven %}
+              <div class="data-row"><span>Breakeven</span><b>{{ st.live_option_trade.calculation.breakeven }}</b></div>
+            {% endif %}
+          {% else %}
+            <p>{{ st.leg_error or "No option legs available." }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
     </div>
 
     <div class="glass-card">
@@ -56,56 +97,7 @@
       <div class="data-row"><span>Score</span><b>{{ inst.institutional_score }}</b></div>
       <div class="data-row"><span>Grade</span><b>{{ inst.institutional_grade }}</b></div>
       <div class="data-row"><span>Confidence</span><b>{{ inst.engine_confidence }}%</b></div>
-      <div class="data-row"><span>Trade Quality</span><b>{{ inst.trade_quality.trade_quality_label }}</b></div>
-      <div class="data-row"><span>Risk</span><b>{{ inst.risk.risk_level }}</b></div>
-    </div>
-
-    <div class="glass-card">
-      <h3>Market Intelligence</h3>
-      <div class="data-row"><span>Regime</span><b>{{ inst.market_regime.regime }}</b></div>
-      <div class="data-row"><span>Regime Strength</span><b>{{ inst.market_regime.regime_strength }}</b></div>
-      <div class="data-row"><span>Bull</span><b>{{ inst.probability.bull_probability }}%</b></div>
-      <div class="data-row"><span>Bear</span><b>{{ inst.probability.bear_probability }}%</b></div>
-      <div class="data-row"><span>Neutral</span><b>{{ inst.probability.neutral_probability }}%</b></div>
-    </div>
-
-    <div class="glass-card">
-      <h3>Component Scores</h3>
-      <div class="data-row"><span>Trend</span><b>{{ inst.component_scores.trend }}</b></div>
-      <div class="data-row"><span>Momentum</span><b>{{ inst.component_scores.momentum }}</b></div>
-      <div class="data-row"><span>Structure</span><b>{{ inst.component_scores.structure }}</b></div>
-      <div class="data-row"><span>Futures VWAP</span><b>{{ inst.component_scores.vwap }}</b></div>
-      <div class="data-row"><span>Option Chain</span><b>{{ inst.component_scores.option_chain }}</b></div>
-      <div class="data-row"><span>Liquidity</span><b>{{ inst.component_scores.liquidity }}</b></div>
-    </div>
-
-    <div class="glass-card console">
-      <h3>Evidence Engine</h3>
-      <h4>Positive Evidence</h4>
-      {% for e in inst.evidence.positive %}
-        <div class="log-line">{{ e.impact }} • {{ e.factor }} • {{ e.reason }}</div>
-      {% endfor %}
-      <h4>Negative Evidence</h4>
-      {% for e in inst.evidence.negative %}
-        <div class="log-line">{{ e.impact }} • {{ e.factor }} • {{ e.reason }}</div>
-      {% endfor %}
-    </div>
-
-    <div class="glass-card console">
-      <h3>Decision Matrix</h3>
-      <table class="terminal-table">
-        <thead><tr><th>Component</th><th>Weight</th><th>Score</th><th>Reason</th></tr></thead>
-        <tbody>
-        {% for row in inst.decision_matrix %}
-          <tr><td><b>{{ row.component }}</b></td><td>{{ row.weight }}%</td><td>{{ row.score }}</td><td>{{ row.reason }}</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="glass-card console">
-      <h3>Score Explanation</h3>
-      <p>{{ inst.explainer.summary }}</p>
+      <div class="data-row"><span>EV</span><b>{{ inst.expected_value.ev_label }}</b></div>
     </div>
 
     <div class="glass-card console">
@@ -113,8 +105,15 @@
       <table class="terminal-table">
         <thead><tr><th>Rank</th><th>Strategy</th><th>Type</th><th>Score</th><th>EV</th><th>Risk</th></tr></thead>
         <tbody>
-        {% for s in data.strategies %}
-          <tr><td>{{ loop.index }}</td><td><b>{{ s.name }}</b></td><td>{{ s.type }}</td><td>{{ s.score }}</td><td>{{ s.ev_score }}</td><td>{{ s.risk_rating }}</td></tr>
+        {% for st in data.strategies %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><b>{{ st.name }}</b></td>
+            <td>{{ st.type }}</td>
+            <td>{{ st.score }}</td>
+            <td>{{ st.ev_score }}</td>
+            <td>{{ st.risk_rating }}</td>
+          </tr>
         {% endfor %}
         </tbody>
       </table>

@@ -10,6 +10,8 @@ from strategy.payoff import (
 )
 from strategy.scorer import score_strategy, no_trade_strategy
 from strategy.institutional_scoring_integration import build_institutional_scoring_summary
+from strategy.live_option_leg_wiring import build_live_option_legs
+from strategy.top_strategy_leg_builder import attach_option_legs_to_top_strategies
 
 STEP_MAP = {
     "NIFTY": 50,
@@ -44,21 +46,38 @@ def build_strategy_decision(underlying="nifty", interval="15m"):
     scored.append(no_trade_strategy(analytics, technical))
     scored = sorted(scored, key=lambda x: x["score"], reverse=True)
 
-    best = scored[0]
-    institutional_grade = "YES" if best["score"] >= 75 and best["name"] != "No Trade" else "NO"
+    best_available_strategy = scored[0]
+
+    execution_status = "APPROVED"
+    execution_reason = "Strategy is approved for execution."
 
     if institutional["capital_preservation"]["action"] in ["WAIT", "NO TRADE"]:
-        best = {
-            "name": "No Trade",
-            "type": "Capital Preservation",
-            "direction": "Neutral",
-            "score": institutional["institutional_score"],
-            "ev_score": institutional["expected_value"]["ev_score"],
-            "confidence": institutional["engine_confidence"],
-            "risk_rating": "None",
-            "reason": institutional["capital_preservation"]["message"]
-        }
-        institutional_grade = "NO"
+        execution_status = "NOT APPROVED"
+        execution_reason = institutional["capital_preservation"]["message"]
+
+    top_strategies_with_legs = attach_option_legs_to_top_strategies(scored, analytics, top_n=3)
+
+    recommended_strategy = best_available_strategy.copy()
+    live_option_trade = build_live_option_legs(best_available_strategy.get("name"), analytics)
+
+    if live_option_trade.get("status") == "ok":
+        calc = live_option_trade.get("calculation", {})
+        recommended_strategy["expiry"] = live_option_trade.get("expiry")
+        recommended_strategy["legs"] = live_option_trade.get("legs")
+        recommended_strategy["buy_leg"] = next((l["display"] for l in live_option_trade["legs"] if l["action"] == "BUY"), None)
+        recommended_strategy["sell_leg"] = next((l["display"] for l in live_option_trade["legs"] if l["action"] == "SELL"), None)
+        recommended_strategy["net_debit"] = calc.get("net_debit")
+        recommended_strategy["net_credit"] = calc.get("net_credit")
+        recommended_strategy["max_profit"] = calc.get("max_profit")
+        recommended_strategy["max_loss"] = calc.get("max_loss")
+        recommended_strategy["breakeven"] = calc.get("breakeven")
+        recommended_strategy["breakeven_lower"] = calc.get("breakeven_lower")
+        recommended_strategy["breakeven_upper"] = calc.get("breakeven_upper")
+        recommended_strategy["risk_reward"] = calc.get("risk_reward")
+    else:
+        recommended_strategy["legs"] = []
+        recommended_strategy["expiry"] = live_option_trade.get("expiry")
+        recommended_strategy["leg_error"] = live_option_trade.get("reason")
 
     return {
         "underlying": analytics["underlying"],
@@ -75,19 +94,21 @@ def build_strategy_decision(underlying="nifty", interval="15m"):
         "pcr": analytics["pcr"],
         "max_pain": analytics["max_pain"],
         "strategies": scored,
-        "recommended_strategy": best,
-        "institutional_grade": institutional_grade,
-        "final_verdict": final_verdict(best, institutional_grade),
+        "top_strategies_with_legs": top_strategies_with_legs,
+        "best_available_strategy": best_available_strategy,
+        "recommended_strategy": recommended_strategy,
+        "execution_status": execution_status,
+        "execution_reason": execution_reason,
+        "institutional_grade": "YES" if execution_status == "APPROVED" else "NO",
+        "final_verdict": final_verdict(best_available_strategy, execution_status, execution_reason),
         "analytics_summary": analytics["summary"],
         "technical_summary": technical["summary"],
-        "institutional_scoring": institutional
+        "institutional_scoring": institutional,
+        "live_option_trade": live_option_trade
     }
 
-def final_verdict(best, institutional_grade):
-    if best["name"] == "No Trade":
-        return "NO TRADE. Capital preservation mode is preferred because risk-adjusted setup quality is not strong enough."
+def final_verdict(best, execution_status, execution_reason):
+    if execution_status == "NOT APPROVED":
+        return f"{best['name']} is the best available strategy, but execution is NOT APPROVED. {execution_reason}"
 
-    if institutional_grade == "YES":
-        return f"{best['name']} is preferred. It has the strongest combined options + technical EV score."
-
-    return f"{best['name']} ranks highest, but setup is not institutional grade yet. Prefer paper tracking or wait for confirmation."
+    return f"{best['name']} is approved. It has the strongest combined options + technical EV score."

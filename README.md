@@ -1,10 +1,22 @@
-Milestone 6.1C-5
+# AdiTradeX 6.1C-5B — Top 3 Strategy Option Legs
 
-Add:
-- strategy/strategy_lab_service.py
-- templates/strategy_lab_panel.html
+## Add
 
-Integrate the service into your existing Strategy Lab view/template.
+- strategy/top_strategy_leg_builder.py
+
+## Replace
+
+- strategy/service.py
+- templates/strategy_dashboard.html
+
+## What this fixes
+
+Earlier, when capital filter showed NO TRADE, the best strategy was overwritten and option legs were not displayed.
+
+Now:
+- Best Available Strategy is preserved.
+- Execution Status is shown separately.
+- Top 3 ranked strategies receive live option legs.
+- NO TRADE blocks execution, but does not hide strategy analysis.
+
 No app.py changes.
-
-This completes Milestone 6.1C.
