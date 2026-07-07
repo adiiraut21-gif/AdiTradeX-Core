@@ -1,0 +1,38 @@
+<div class="glass-card">
+  <h3>Position Intelligence</h3>
+  <p>Live Zerodha positions with HOLD / EXIT / SL / Target recommendations.</p>
+
+  {% if data.position_intelligence.status == "error" %}
+    <div class="alert red">{{ data.position_intelligence.error }}</div>
+  {% elif data.position_intelligence.count == 0 %}
+    <p>No open positions found.</p>
+  {% else %}
+    {% for item in data.position_intelligence.positions %}
+      {% set p = item.position %}
+      {% set d = item.decision %}
+      {% set r = item.risk %}
+      {% set t = item.technical %}
+      {% set oc = item.option_chain %}
+
+      <div class="glass-card">
+        <h4>{{ p.tradingsymbol }}</h4>
+        <div class="data-row"><span>Qty</span><b>{{ p.quantity }}</b></div>
+        <div class="data-row"><span>Avg</span><b>{{ p.average_price }}</b></div>
+        <div class="data-row"><span>CMP</span><b>{{ p.last_price }}</b></div>
+        <div class="data-row"><span>P&L</span><b>{{ p.pnl }}</b></div>
+        <div class="data-row"><span>Action</span><b>{{ d.action }}</b></div>
+        <div class="data-row"><span>Score</span><b>{{ d.position_score }}</b></div>
+        <div class="data-row"><span>Confidence</span><b>{{ d.confidence }}%</b></div>
+        <hr>
+        <div class="data-row"><span>SL</span><b>{{ r.stop_loss }}</b></div>
+        <div class="data-row"><span>Target 1</span><b>{{ r.target_1 }}</b></div>
+        <div class="data-row"><span>Target 2</span><b>{{ r.target_2 }}</b></div>
+        <div class="data-row"><span>Trailing SL</span><b>{{ r.trailing_sl }}</b></div>
+        <hr>
+        <div class="data-row"><span>Technical</span><b>{{ t.technical_bias }} / {{ t.technical_score }}</b></div>
+        <div class="data-row"><span>Option Chain</span><b>{{ oc.institutional_bias }} / {{ oc.option_chain_score }}</b></div>
+        <p>{{ d.summary }}</p>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>

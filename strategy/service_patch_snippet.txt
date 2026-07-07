@@ -1,0 +1,8 @@
+# Add this import near the top of strategy/service.py
+from strategy.position_intelligence_bridge import get_strategy_lab_position_intelligence
+
+# Inside build_strategy_decision(), before return:
+position_intelligence = get_strategy_lab_position_intelligence()
+
+# Add this key inside the returned dictionary:
+"position_intelligence": position_intelligence,

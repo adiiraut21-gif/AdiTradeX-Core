@@ -1,22 +1,44 @@
-# AdiTradeX 6.1C-5B — Top 3 Strategy Option Legs
+# AdiTradeX 6.2B — Position Intelligence inside Strategy Lab
 
 ## Add
+- position/
+- strategy/position_intelligence_bridge.py
+- templates/position_intelligence_panel.html
 
-- strategy/top_strategy_leg_builder.py
+## Manual integration needed — no app.py changes
 
-## Replace
+### 1) Edit strategy/service.py
 
-- strategy/service.py
-- templates/strategy_dashboard.html
+Add import near top:
 
-## What this fixes
+```python
+from strategy.position_intelligence_bridge import get_strategy_lab_position_intelligence
+```
 
-Earlier, when capital filter showed NO TRADE, the best strategy was overwritten and option legs were not displayed.
+Inside `build_strategy_decision()`, before the final return:
 
-Now:
-- Best Available Strategy is preserved.
-- Execution Status is shown separately.
-- Top 3 ranked strategies receive live option legs.
-- NO TRADE blocks execution, but does not hide strategy analysis.
+```python
+position_intelligence = get_strategy_lab_position_intelligence()
+```
 
-No app.py changes.
+Add this key to the returned dictionary:
+
+```python
+"position_intelligence": position_intelligence,
+```
+
+### 2) Edit templates/strategy_dashboard.html
+
+Add this where you want the Position Intelligence section to appear:
+
+```jinja2
+{% include "position_intelligence_panel.html" %}
+```
+
+Recommended position: after Top 3 Strategy Option Legs and before Institutional Scoring.
+
+## Why this package is safe
+- No app.py changes.
+- No new routes.
+- Uses existing Strategy Lab page.
+- If Zerodha position fetch fails, panel shows error without breaking Strategy Lab.

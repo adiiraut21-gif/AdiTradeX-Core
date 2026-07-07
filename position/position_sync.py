@@ -30,17 +30,11 @@ def normalize_position(p):
         "product": p.get("product"),
         "instrument_token": p.get("instrument_token"),
         "position_type": classify_position(p.get("tradingsymbol")),
-        "raw": p
     }
 
 def fetch_open_positions():
     kite = get_kite()
     data = kite.positions()
     net_positions = data.get("net", []) if isinstance(data, dict) else []
-
-    active = []
-    for p in net_positions:
-        if p.get("quantity", 0) != 0:
-            active.append(normalize_position(p))
-
+    active = [normalize_position(p) for p in net_positions if p.get("quantity", 0) != 0]
     return {"status": "ok", "count": len(active), "positions": active}

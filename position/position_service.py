@@ -9,16 +9,12 @@ def analyze_position(position):
     option_chain = option_chain_confirmation(position)
     risk = build_risk_plan(position, technical, option_chain)
     decision = make_position_decision(position, technical, option_chain, risk)
-
-    return {
-        "position": position,
-        "technical": technical,
-        "option_chain": option_chain,
-        "risk": risk,
-        "decision": decision
-    }
+    return {"position": position, "technical": technical, "option_chain": option_chain, "risk": risk, "decision": decision}
 
 def get_position_intelligence():
-    sync = fetch_open_positions()
-    results = [analyze_position(p) for p in sync.get("positions", [])]
-    return {"status": "ok", "count": len(results), "positions": results}
+    try:
+        sync = fetch_open_positions()
+        results = [analyze_position(p) for p in sync.get("positions", [])]
+        return {"status": "ok", "count": len(results), "positions": results}
+    except Exception as e:
+        return {"status": "error", "count": 0, "positions": [], "error": str(e)}

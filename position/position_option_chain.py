@@ -22,8 +22,8 @@ def option_chain_confirmation(position):
     pcr = analytics.get("pcr") or 1
     bias = analytics.get("institutional_bias", "Neutral")
     pos_type = position.get("position_type")
-
     score = 50
+
     if pos_type == "OPTION_CALL":
         if bias == "Bullish":
             score += 25

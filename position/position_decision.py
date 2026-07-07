@@ -2,7 +2,6 @@ def make_position_decision(position, technical, option_chain, risk):
     tech_score = technical.get("technical_score", 50)
     oc_score = option_chain.get("option_chain_score", 50)
     aligned = technical.get("aligned", False)
-
     score = round(tech_score * 0.55 + oc_score * 0.45, 2)
 
     if score >= 82 and aligned:
@@ -20,7 +19,6 @@ def make_position_decision(position, technical, option_chain, risk):
         action = "BOOK PARTIAL PROFIT"
 
     confidence = min(100, round(50 + abs(score - 50) * 1.4, 2))
-
     return {
         "action": action,
         "position_score": score,
