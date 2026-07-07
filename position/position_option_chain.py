@@ -12,6 +12,10 @@ def option_chain_confirmation(position):
             "status": "error",
             "option_chain_score": 50,
             "institutional_bias": "Neutral",
+            "pcr": None,
+            "support": None,
+            "resistance": None,
+            "max_pain": None,
             "reason": str(e)
         }
 
@@ -40,11 +44,9 @@ def option_chain_confirmation(position):
         elif bias == "Bearish":
             score -= 10
 
-    score = max(0, min(100, round(score, 2)))
-
     return {
         "status": "ok",
-        "option_chain_score": score,
+        "option_chain_score": max(0, min(100, round(score, 2))),
         "institutional_bias": bias,
         "pcr": pcr,
         "support": analytics.get("support"),

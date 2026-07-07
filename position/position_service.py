@@ -21,9 +21,4 @@ def analyze_position(position):
 def get_position_intelligence():
     sync = fetch_open_positions()
     results = [analyze_position(p) for p in sync.get("positions", [])]
-
-    return {
-        "status": "ok",
-        "count": len(results),
-        "positions": results
-    }
+    return {"status": "ok", "count": len(results), "positions": results}

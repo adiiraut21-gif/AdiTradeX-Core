@@ -6,50 +6,8 @@ def get_kite():
         try:
             from auth.service import get_kite_client
             return get_kite_client()
-        except Exception:
-            try:
-                from kiteconnect import KiteConnect
-                from config.settings import Settings
-                kite = KiteConnect(api_key=Settings.KITE_API_KEY)
-                return kite
-            except Exception as e:
-                raise RuntimeError(f"Kite client unavailable: {e}")
-
-def fetch_open_positions():
-    kite = get_kite()
-    data = kite.positions()
-    net_positions = data.get("net", []) if isinstance(data, dict) else []
-
-    active = []
-    for p in net_positions:
-        qty = p.get("quantity", 0)
-        if qty != 0:
-            active.append(normalize_position(p))
-
-    return {
-        "status": "ok",
-        "count": len(active),
-        "positions": active
-    }
-
-def normalize_position(p):
-    tradingsymbol = p.get("tradingsymbol")
-    quantity = p.get("quantity", 0)
-    avg = p.get("average_price", 0)
-    last = p.get("last_price", 0)
-
-    return {
-        "tradingsymbol": tradingsymbol,
-        "exchange": p.get("exchange"),
-        "quantity": quantity,
-        "average_price": avg,
-        "last_price": last,
-        "pnl": p.get("pnl", 0),
-        "product": p.get("product"),
-        "instrument_token": p.get("instrument_token"),
-        "position_type": classify_position(tradingsymbol),
-        "raw": p
-    }
+        except Exception as e:
+            raise RuntimeError(f"Kite client unavailable: {e}")
 
 def classify_position(symbol):
     s = (symbol or "").upper()
@@ -60,3 +18,29 @@ def classify_position(symbol):
     if "FUT" in s:
         return "FUTURE"
     return "EQUITY"
+
+def normalize_position(p):
+    return {
+        "tradingsymbol": p.get("tradingsymbol"),
+        "exchange": p.get("exchange"),
+        "quantity": p.get("quantity", 0),
+        "average_price": p.get("average_price", 0),
+        "last_price": p.get("last_price", 0),
+        "pnl": p.get("pnl", 0),
+        "product": p.get("product"),
+        "instrument_token": p.get("instrument_token"),
+        "position_type": classify_position(p.get("tradingsymbol")),
+        "raw": p
+    }
+
+def fetch_open_positions():
+    kite = get_kite()
+    data = kite.positions()
+    net_positions = data.get("net", []) if isinstance(data, dict) else []
+
+    active = []
+    for p in net_positions:
+        if p.get("quantity", 0) != 0:
+            active.append(normalize_position(p))
+
+    return {"status": "ok", "count": len(active), "positions": active}

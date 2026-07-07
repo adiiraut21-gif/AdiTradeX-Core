@@ -10,9 +10,9 @@ def technical_confirmation(position):
     except Exception:
         tech = {"technical_score": 50, "technical_bias": "Neutral"}
 
-    pos_type = position.get("position_type")
-    bias = tech.get("technical_bias", "Neutral")
     score = tech.get("technical_score", 50)
+    bias = tech.get("technical_bias", "Neutral")
+    pos_type = position.get("position_type")
 
     if pos_type == "OPTION_CALL":
         aligned = bias == "Bullish"
@@ -21,9 +21,4 @@ def technical_confirmation(position):
     else:
         aligned = score >= 55
 
-    return {
-        "technical_score": score,
-        "technical_bias": bias,
-        "aligned": aligned,
-        "raw": tech
-    }
+    return {"technical_score": score, "technical_bias": bias, "aligned": aligned}

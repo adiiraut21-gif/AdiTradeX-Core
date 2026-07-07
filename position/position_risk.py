@@ -9,6 +9,7 @@ def build_risk_plan(position, technical, option_chain):
             "target_1": None,
             "target_2": None,
             "trailing_sl": None,
+            "pnl_pct": 0,
             "risk_note": "Entry/CMP unavailable"
         }
 

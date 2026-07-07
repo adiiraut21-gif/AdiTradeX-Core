@@ -25,8 +25,4 @@ def parse_position_symbol(tradingsymbol):
     else:
         underlying = s.replace("-EQ", "")
 
-    return {
-        "underlying": underlying,
-        "strike": strike,
-        "option_type": option_type
-    }
+    return {"underlying": underlying, "strike": strike, "option_type": option_type}
